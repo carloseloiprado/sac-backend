@@ -1,0 +1,556 @@
+<%
+{include/config.i}
+{include/seguranca.i "GET|POST|PUT|DELETE"}
+{include/contenttype.i "text/html;charset=UTF-8"}
+{include/app.i}
+
+/**
+ * 
+ * ---------------
+ *
+ *  - Portal de Solicitacoes
+ *
+ * Autor: carloseloi.prado@gmail.com
+ */
+
+%>
+
+<!DOCTYPE html>
+<html>
+
+<% {view/layout/html_head_manifestacao.i} %>
+
+<body id="page-top" ng-app="app" ng-controller="tramManifestacao as main">
+
+  <!--div data-ng-controller="tramManifestacao" data-ng-init="init()"></div-->
+
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    <% {view/layout/html_menu.i} %>
+
+    <!-- Begin Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <% {view/layout/html_topbar.i} %>
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+            <!-- Page Heading -->
+            <h1 class="h3 mb-2 text-gray-800">Movimenta&ccedil;&atilde;o de Manifesta&ccedil;&atilde;o</h1>
+            <p class="mb-4">Tr&acirc;mitar, solucionar ou transfirir a manifesta&ccedil;&atilde;o.</p>
+
+  
+            <!-- Content Row -->
+            <div class="row justify-content-center">
+
+			  <!-- Area Chart -->
+              <div class="col-xl-8 col-lg-10 col-md-10">								
+																							
+                    <div class="card shadow mb-4">
+                        <!-- Card Header - Dropdown -->
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">Manifesta&ccedil;&atilde;o:</h6>
+                            <div class="dropdown no-arrow">
+                                <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+                                    <div class="dropdown-header">A&ccedil;&otilde;es:</div>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#detalheManifestacaoModal">Manifesta&ccedil;&atilde;o Detalhada</a>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#historicoManifestacaoModal">Hist&oacute;rico da Manifesta&ccedil;&atilde;o</a>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#anexosManifestacaoModal">Anexos da Manifesta&ccedil;&atilde;o</a>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#voltarModal">Voltar</a>
+                                </div>
+                            </div>											
+                        </div>
+                        <!-- Card Body -->
+                        <div class="card-body">
+                            <form class="user">
+                                <div class="form-group row">
+                                    <div class="col-sm-6 text-left">
+                                        <h4 class="h4 mb-1 text-gray-800">ID Manifesta&ccedil;&atilde;o:</h4>
+                                    </div>
+                                    <div class="col-sm-6 text-left">
+                                        <h4 class="h4 mb-1 text-gray-800">Aberta:</h4>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                  <div class="col-sm-6 text-left">
+                                    <p class="mb-4">{{idmanifestacao}}</p>
+                                  </div>
+                                  <div class="col-sm-6 text-left">
+                                    <p class="mb-4">{{dthrmanifestacao}}</p>
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-12 text-left">
+                                        <h4 class="h4 mb-1 text-gray-800">Ocorr&ecirc;ncia:</h4>
+                                    </div>
+                                    <div class="col-sm-12 text-left">
+                                        <p class="mb-4">{{ocorrencia}}</p>
+                                    </div>
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <div class="form-group row">                                 
+                                    <div ng-if="errotramitaconclusao" class="alert alert-danger">
+                                        Conclus&atilde;o deve ser selecionada abaixo.
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-3 text-left">
+                                        <h4 class="h4 mb-1 text-gray-800">Conclus&atilde;o:</h4>
+                                    </div>
+                                    <div class="col-sm-5">
+                                        <select class="form-control selectpicker" name="conclusao" id="conclusao" 
+                                            required data-style="btn-primary">
+                                            <option value="selecione" data-tokens="selecione">Selecionar Conclus&atilde;o</option>
+                                            <option value="procede" data-tokens="procede">Procede</option>
+                                            <option value="naoprocede" data-tokens="naoprocede">N&atilde;o Procede</option>
+                                            <option value="solicitaramostra" data-tokens="solicitaramostra">Solicitar Amostra</option>
+                                        </select> 
+                                    </div> 
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <div class="form-group row">
+                                    <div ng-if="errotramitaparecer" class="alert alert-danger">
+                                        Parecer T&eacute;cnico deve ser informado abaixo.
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-12 text-left">
+                                            <h4 class="h4 mb-1 text-gray-800">Parecer T&eacute;cnico:</h4>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-12 text-left">
+                                            <textarea required class="form-control border-left-primary" id="parecertecnico" name="parecertecnico" ng-model="parecertecnico" rows="15" maxlength="1500"></textarea>
+                                    </div>
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <div class="container">
+                                    <div class="row">
+                                      
+                                       <div class="col-md-12">
+                                                
+                                          <div class="form-group files color">
+                                              <label>Anexos: </label>
+                                              <input type="file" name="file"id="file" ng-model="file" class="form-control" multiple="">                                                                                          
+                                          </div>
+                                          <div class="row">
+                                            <div class="col-md-6" id='file-list-display-right'></div>
+                                            <div class="col-md-6" id='file-list-display-left'></div>
+                                          </div>                                          
+                                      </div>
+                                    </div>
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <br><br>
+                                
+                                <!--button class="btn btn-lg btn-secondary btn-block" data-toggle="modal" data-target="#voltarModal" >Voltar</button-->
+                                <button class="btn btn-lg btn-primary btn-block" data-toggle="modal" ng-click="pretramitamanifestacao()">Tr&acirc;mitar Manifesta&ccedil;&atilde;o</button>
+                                <button class="btn btn-lg btn-success btn-block" data-toggle="modal" ng-click="presolucionamanifestacao()">Manifesta&ccedil;&atilde;o Solucionada</button>
+                                <a class="btn btn-lg btn-info btn-block" id="btnTrans" href="trans-manifestacao{{lnktramitar}}">Transferir Manifesta&ccedil;&atilde;o</a>
+                                <button class="btn btn-lg btn-secondary btn-block" data-toggle="modal" data-target="#voltarModal" >Voltar</button>
+                                <button class="btn btn-lg btn-primary btn-block" style="visibility: hidden;" id="btnGravar">Gravar</button>
+                            </form>
+                        </div>
+                        
+                    </div>
+                </div> 				
+            </div>
+          </div>
+          <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+      <% {view/layout/html_copyright.i} %>
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+
+  <!-- voltar Modal-->
+  <div class="modal fade" data-backdrop="static"   id="voltarModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Deseja voltar?</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">x</span>
+          </button>
+       </div>
+        <div class="modal-body">Voltar para p&aacute;gina anterior?</div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">N&atilde;o</button>
+          <a class="btn btn-primary" href="{{histBack}}">Sim</a>
+        </div>
+      </div>
+    </div>
+   </div>
+
+  <!-- historicoManifestacaoModal Modal-->
+  <div class="modal fade" data-backdrop="static"   id="historicoManifestacaoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="width: 140%">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel"><h4 class="h4 mb-1 text-gray-800">Hist&oacute;rico:</h4></h5>
+            <div class="form-group row">
+                <div class="col-sm-12 text-left row">&nbsp;</div>
+            </div>   
+            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">x</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form class="user">
+                <div class="form-group row">
+                    <div class="col-sm-12 text-left row">
+                        &nbsp;
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-12 text-left">
+                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0" style="font-size: 0.7rem;">
+                            <thead>
+                                <tr>
+                                  <th style="width: 32px;">Data Hora</th>
+                                  <th>Status</th>
+                                  <th>Parecer</th>
+                                  <th>Hist&oacute;rico</th>
+                                  <th>Respons&aacute;vel</th>                                          
+                                </tr>
+                            </thead>                                            
+                            <tbody>                                            
+                                <tr style="border: 0px;" ng-repeat="x in historicomanifestacao | orderBy:x.id">
+                                    <td>{{ x.dthrmanifestacao }}</td>
+                                    <td>{{ x.sstatus }}</td>
+                                    <td>{{ x.concparecer }}</td>
+                                    <td>{{ x.parecer }}</td>
+                                    <td>{{ x.usuar }}</td>
+                                </tr>
+                            </tbody>
+                        </table>                                            
+                    </div>
+                </div>
+            </form> 
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" data-toggle="modal" ng-click="pretramitamanifestacao()" type="button">Tr&acirc;mitar Manifesta&ccedil;&atilde;o</button>      
+            <button class="btn btn-secondary" type="button" data-dismiss="modal">Fechar</button>
+        </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- anexosManifestacaoModal Modal-->
+  <div class="modal fade" data-backdrop="static"   id="anexosManifestacaoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel"><h4 class="h4 mb-1 text-gray-800">Anexos:</h4></h5>
+            <div class="form-group row">
+                <div class="col-sm-12 text-left row">&nbsp;</div>
+            </div>   
+            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">x</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form class="user">
+                <div class="form-group row">
+                    <div class="col-sm-12 text-left row">
+                        &nbsp;
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-12 text-left">
+                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0" style="font-size: 0.7rem;">
+                            <thead>                                            
+                            <tbody>                                            
+                                <tr style="border: 0px;" ng-repeat="x in anexomanifestacao | orderBy:x.pathanexo">
+                                    <td>
+                                        <a href="{{x.pathanexo}}" target="_blank" class="btn btn-icon-split">
+                                            <span  class="fas fa-paperclip"></span> 
+                                            {{ x.nameanexo }}
+                                        </a>
+                                        
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>                                            
+                    </div>
+                </div>
+            </form> 
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" type="button" data-dismiss="modal">Fechar</button>
+        </div>
+        </div>
+    </div>
+  </div>
+
+  <!--Modal detalhe da manifestação-->
+  <div class="modal fade" data-backdrop="static"   id="detalheManifestacaoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="width: 140%">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Detalhe Manifesta&ccedil;&atilde;o</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">x</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form class="user">
+                    <div class="form-group row">
+                        <div class="col-sm-6 text-left">
+                            <h4 class="h4 mb-1 text-gray-800">ID Manifesta&ccedil;&atilde;o:</h4>
+                        </div>
+                        <div class="col-sm-6 text-left">                               
+                            <h4 class="h4 mb-1 text-gray-800">Protocolo:</h4>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-6 text-left">
+                            <p class="mb-4">{{idmanifestacao}}</p>
+                        </div>
+                        <div class="col-sm-6 text-left">                               
+                            <p class="mb-4">{{protocolo}}</p>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-6 text-left">
+                            <h4 class="h4 mb-1 text-gray-800">Origem:</h4>
+                        </div>
+                        <div class="col-sm-6 text-left">                               
+                            <h4 class="h4 mb-1 text-gray-800">Telefone:</h4>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-6 text-left">
+                            <p class="mb-4">{{origem}}</p>
+                        </div>
+                        <div class="col-sm-6 text-left">                               
+                            <p class="mb-4">{{telefone}}</p>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-6 text-left">
+                            <h4 class="h4 mb-1 text-gray-800">Cliente:</h4>
+                        </div>
+                        <div class="col-sm-6 text-left">                               
+                            <h4 class="h4 mb-1 text-gray-800"> Aberta:</h4>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-6 text-left">
+                            <p class="mb-4">{{cliente}}</p>
+                        </div>
+                        <div class="col-sm-6 text-left">
+                            <p class="mb-4">{{dthrmanifestacao}}</p>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-6 text-left">
+                            <h4 class="h4 mb-1 text-gray-800">Endere&ccedil;o:</h4>
+                        </div>
+                        <div class="col-sm-6 text-left">                               
+                            <h4 class="h4 mb-1 text-gray-800">&nbsp;</h4>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-12 text-left">
+                            <p class="mb-4">{{logradouro}}<br>
+                            {{cidadeuf}}&nbsp;&nbsp;-&nbsp;&nbsp;<b>CEP</b>&nbsp;&nbsp;:&nbsp;{{cep}}</p>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-3 text-left">
+                            <h4 class="h4 mb-1 text-gray-800">Tipo:</h4>
+                        </div>
+                        <div class="col-sm-9 text-left">                               
+                            <h4 class="h4 mb-1 text-gray-800">Item(s):</h4>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-3 text-left">
+                            <p class="mb-3">{{tipotpitem}}</p>
+                        </div>
+                        <div class="col-sm-7 text-left">                               
+                            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0" style="font-size: 0.7rem;">
+                                <thead>                                            
+                                <tbody>                                            
+                                    <tr style="border: 0px;" ng-repeat="x in itensmanifestacao | orderBy:x.item">
+                                        <td>{{ x.item }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-12 text-left">
+                            <h4 class="h4 mb-1 text-gray-800">Ocorr&ecirc;ncia:</h4>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-12 text-left">
+                            <p class="mb-4">{{ocorrencia}}</p>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-12 text-left">
+                            <h4 class="h4 mb-1 text-gray-800">Resposta:</h4>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-12 text-left">
+                            <p class="mb-4">{{resposta}}</p>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-12 text-left">
+                            <h4 class="h4 mb-1 text-gray-800">Investiga&ccedil;&atilde;o:</h4>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-12 text-left">
+                            <p class="mb-4">{{investigacao}}</p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- voltar Modal-->
+   <div class="modal fade" data-backdrop="static"   id="voltarModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Deseja sair?</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">x</span>
+          </button>
+       </div>
+        <div class="modal-body">Voltar para manifesta&ccedil;&atilde;o abertas.</div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">N&atilde;o</button>
+          <a class="btn btn-primary" href="open-manifestacao">Sim</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- finalizaManifestacaoModalModal Modal-->
+  <div class="modal fade" data-backdrop="static"   id="tramitandoManifestacaoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">{{mensagemmodal}}</h5>
+        </div>
+        <div class="modal-body">{{corpomensagemmodal}}</div>
+        </div>
+    </div>
+  </div>
+
+  <!-- pretramitamanifestacaoModal Modal-->
+  <div class="modal fade" data-backdrop="static"   id="pretramitamanifestacaoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Deseja realmente tr&acirc;mitar sua manifesta&ccedil;&atilde;o?</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">x</span>
+          </button>
+       </div>
+        <div class="modal-body">Selecione "Sim" abaixo caso se deseje tr&acirc;mitar sua manifesta&ccedil;&atilde;o. Ap&oacute;s tr&acirc;mitar, os dados dessa manifesta&ccedil;&atilde;o ser&atilde;o enviados aos respons&aacute;veis.</div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">N&atilde;o</button>
+          <a class="btn btn-primary" href="#" ng-click="tramitarmanifestacao()" >Sim</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- presolucionamanifestacaoModal Modal-->
+  <div class="modal fade" data-backdrop="static"   id="presolucionamanifestacaoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Deseja realmente solucionar sua manifesta&ccedil;&atilde;o?</h5>
+            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">x</span>
+            </button>
+        </div>
+        <div class="modal-body">Selecione "Sim" abaixo caso se deseje solucionar sua manifesta&ccedil;&atilde;o. Ap&oacute;s solucionada, os dados dessa manifesta&ccedil;&atilde;o ser&atilde;o enviados aos respons&aacute;veis.</div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" type="button" data-dismiss="modal">N&atilde;o</button>
+            <a class="btn btn-primary" href="#" ng-click="solucionamanifestacao()" >Sim</a>
+        </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- Trâmitar Modal-->
+  <div class="modal fade" data-backdrop="static"   id="tramitamanifestacaoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">{{mensagemmodal}}</h5>
+       </div>
+        <div class="modal-body">{{nummanifestacaosistema}}</div>
+        <div class="modal-footer">
+          <!--a class="btn btn-secondary" href="my-manifestacao">Novo Tr&acirc;mite</a-->
+          <a class="btn btn-primary" href="home">Home</a>
+        </div>
+      </div>
+    </div>
+   </div>
+
+   <!-- Erro Trâmitação Modal-->
+   <div class="modal fade" data-backdrop="static"   id="errotramitamanifestacaoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">{{mensagemmodal}}</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">x</span>
+          </button>
+       </div>
+        <div class="modal-body">{{nummanifestacaosistema}}</div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">OK</button>
+        </div>
+      </div>
+    </div>
+   </div>
+
+   <!-- Carregando Modal-->
+   <div class="modal fade" data-backdrop="static"   id="carregandoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Aguarde...</h5>
+       </div>
+        <div class="modal-body">Carregando...</div>
+      </div>
+    </div>
+   </div>
+
+  <% {view/layout/html_logoutmodal.i} %>
+
+  <% {view/layout/html_footer_manifestacao.i} %>
+
+</body>
+</html>

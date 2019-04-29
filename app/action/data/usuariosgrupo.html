@@ -1,0 +1,88 @@
+<%
+{include/contenttype.i "application/json;charset=UTF-8"}
+{include/config.i}
+{include/seguranca.i "GET"}
+{include/app.i}
+
+/**
+ * 
+ * ---------------
+ *
+ *  - Portal de Manifestação de Clientes - SAC
+ *
+ * Autor: carloseloi.prado@gmail.com.
+ */
+
+/** Variaveis */
+DEF VAR idmanifestacao        AS CHARACTER NO-UNDO.
+DEF VAR codgrpusuar           AS CHARACTER NO-UNDO.
+
+idmanifestacao = get-value("idmanifestacao").
+
+/** Saida Log */
+IF app_config.habilita_log THEN DO:
+	MESSAGE retorna_cabecalho_mensagem_log(APPPROGRAM).
+  	MESSAGE retorna_rodape_mensagem_log(APPPROGRAM).
+END.
+
+/** Temp-table */
+DEFINE TEMP-TABLE ttRetorno NO-UNDO
+    FIELD id     			 				LIKE grp_usuar.cod_grp_usuar
+    FIELD nome   			 				LIKE grp_usuar.des_grp_usuar SERIALIZE-NAME "text"
+	.
+
+DEFINE DATASET dsRetorno      FOR ttRetorno.
+
+FIND LAST hist-manifestacao NO-LOCK
+  WHERE hist-manifestacao.id-manifestacao = idmanifestacao 
+    AND hist-manifestacao.cod-grp-usuar <> '' 
+    AND hist-manifestacao.cod-grp-usuar <> 'SAC' NO-ERROR.
+
+IF AVAIL(hist-manifestacao) THEN
+    ASSIGN codgrpusuar = hist-manifestacao.cod-grp-usuar.
+
+CREATE ttRetorno.
+ASSIGN ttRetorno.id 		= 'SAI'.
+       ttRetorno.nome 		= 'P&D - Pesquisa e Desenvolvimento'.
+
+CREATE ttRetorno.
+ASSIGN ttRetorno.id 		= 'SAE'.
+       ttRetorno.nome 		= 'Embalagens'.
+CREATE ttRetorno.
+ASSIGN ttRetorno.id 		= 'SAL'.
+       ttRetorno.nome 		= 'Transporte/Log' + CHR(237) + 'stica'.
+CREATE ttRetorno.
+ASSIGN ttRetorno.id 		= 'SAP'.
+       ttRetorno.nome 		= 'Produ' + CHR(231) + CHR(227)  + 'o'.
+           
+FOR EACH usuar_grp_usuar FIELDS( usuar_grp_usuar.cod_grp_usuar usuar_grp_usuar.cod_usuario ) NO-LOCK
+  WHERE usuar_grp_usuar.cod_grp_usuar = codgrpusuar AND usuar_grp_usuar.cod_grp_usuar <> 'SAC',
+    EACH usuar_mestre FIELDS ( cod_usuario nom_usuario) USE-INDEX srmstr_id NO-LOCK WHERE usuar_mestre.cod_usuario = usuar_grp_usuar.cod_usuario:					
+
+	RUN pi-registro-retorno.
+			
+END.
+
+RUN pi-retorno.
+
+
+/** Retorna Json */
+PROCEDURE pi-retorno:
+
+    DEFINE VARIABLE lRetOK      AS LOGICAL   NO-UNDO.
+   
+   	ASSIGN lRetOK = DATASET dsRetorno:WRITE-JSON("STREAM", "WebStream",NO, "utf-8", ?, TRUE).
+
+END PROCEDURE.
+
+
+/** Cria registro de retorno */
+PROCEDURE pi-registro-retorno:
+	 
+	CREATE ttRetorno.
+	ASSIGN ttRetorno.id 		= usuar_mestre.cod_usuario.
+		   ttRetorno.nome 		= usuar_mestre.nom_usuario.
+	
+END PROCEDURE.
+
+%>

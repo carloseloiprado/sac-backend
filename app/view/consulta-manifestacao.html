@@ -1,0 +1,207 @@
+<%
+{include/config.i}
+{include/seguranca.i "GET"}
+{include/contenttype.i "text/html"}
+{include/app.i}
+
+/**
+   * 
+ * ---------------
+ *
+ *  - Portal de Manifestação de Clientes - SAC
+ *
+ * Autor: carloseloi.prado@gmail.com
+ */
+
+%>
+
+<!DOCTYPE html>
+<html>
+
+<% {view/layout/html_head_open_manifestacao.i} %>
+<% {view/layout/html_head_bt_dttable.i} %>
+
+<style>
+  .aberta { 
+    background-color: #feffe2;
+  }
+  .emandamento { 
+    background-color: #CEECF5;
+  }
+  .pendente { 
+    background-color: #f9b9b9;
+  }
+  .solucionada { 
+    background-color: #E0F8E0;
+  }
+  .finalizada { 
+    background-color: #F2F2F2;
+  }
+</style>
+
+<body id="page-top" ng-app="app" ng-controller="ConsultaManifestacao as main">
+
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    <% {view/layout/html_menu.i} %>
+
+    <!-- Begin Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <% {view/layout/html_topbar.i} %>
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+            <!-- Page Heading -->
+            <h1 class="h3 mb-2 text-gray-800">Consulta de Manifesta&ccedil;&otilde;es</h1>
+            <p class="mb-4">Aplicar filtros e exibir resultado da consulta de manifesta&ccedil;&otilde;es tabuladas.</p>
+
+            <!-- Content Row -->  
+            <div class="row">                
+
+              <!-- Area consulta manifestacoes -->
+              <div class="col-xl-12 col-lg-10">
+                <div class="card shadow mb-4">
+                  <!-- Card Header - Dropdown -->
+                  <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Consulta de Manifesta&ccedil;&otilde;es:</h6>                    
+                  </div>
+                  <!-- Card Body -->
+                  <div class="card-body">                                       
+                    <form class="user" name="formManifestacao" id="formManifestacao">
+                      <div class="form-group row">
+                        <div class="col-sm-4 text-left">
+                          <label for="origem">Origem</label>
+                        </div>
+                        <div class="col-sm-4 text-left">
+                          <label for="origem">Tipo</label>
+                        </div>
+                        <div class="col-sm-4 text-left">
+                          <label for="origem">UF</label>
+                        </div>                              
+                      </div>
+                      <div class="form-group row">
+                        <div class="col-sm-4">
+                          <select class="form-control selectpicker" name="origem" id="origem" data-live-search="true"  
+                          required data-style="btn-primary">
+                          <option data-tokens="todos">Todos</option>
+                            <option data-tokens="0800">0800</option>
+                            <option data-tokens="Email">Email (Blog / Site)</option>
+                            <option data-tokens="Redes" >Redes Sociais</option>
+                            <option data-tokens="Outros" >Outros</option>
+                          </select> 
+                        </div> 
+                        <div class="col-sm-4">
+                          <select class="form-control selectpicker" name="tipo" id="tipo" required  data-live-search="true" data-style="btn-primary">
+                            <option value='todos' data-tokens="todos">Todos</option>
+                            <option value='elogio' data-tokens="elogio">Elogio</option>
+                            <option value='informacao' data-tokens="informacao">Informa&ccedil;&atilde;o</option>
+                            <option value='sugestao' data-tokens="sugestao" >Sugest&ccedil;&atilde;o</option>
+                            <option value='reclamacao' data-tokens="reclamacao" >Reclama&ccedil;&atilde;o</option>
+                            <option value='solicitacao' data-tokens="solicitacao" >Solicita&ccedil;&atilde;o</option>
+                            <option value='ondeencontrar' data-tokens="ondeencontrar" >Onde Encontrar</option>
+                          </select> 
+                        </div>
+                        <div class="col-sm-4">
+                          <select class="form-control selectpicker" name="uf" id="uf" required  data-live-search="true" data-style="btn-primary">
+                              <option value="todos" data-tokens="todos">Todos</option>
+                              <option value="AC" data-tokens="Acre">Acre</option>
+                              <option value="AL" data-tokens="Alagoas">Alagoas</option>
+                              <option value="AP" data-tokens="Amap&aacute;">Amap&aacute;</option>
+                              <option value="AM" data-tokens="Amazonas">Amazonas</option>
+                              <option value="BA" data-tokens="Bahia">Bahia</option>
+                              <option value="CE" data-tokens="Cear&aacute;">Cear&aacute;</option>
+                              <option value="DF" data-tokens="Distrito Federal">Distrito Federal</option>
+                              <option value="ES" data-tokens="Esp&iacute;rito Santo">Esp&iacute;rito Santo</option>
+                              <option value="GO" data-tokens="Goi&aacute;s">Goi&aacute;s</option>
+                              <option value="MA" data-tokens="Maranh&atilde;o">Maranh&atilde;o</option>
+                              <option value="MT" data-tokens="Mato Grosso">Mato Grosso</option>
+                              <option value="MS" data-tokens="Mato Grosso do Sul">Mato Grosso do Sul</option>
+                              <option value="MG" data-tokens="Minas Gerais">Minas Gerais</option>
+                              <option value="PA" data-tokens="Par&aacute;">Par&aacute;</option>
+                              <option value="PB" data-tokens="Para&iacute;ba">Para&iacute;ba</option>
+                              <option value="PR" data-tokens="Paran&aacute;">Paran&aacute;</option>
+                              <option value="PE" data-tokens="Pernambuco">Pernambuco</option>
+                              <option value="PI" data-tokens="Piau&iacute;">Piau&iacute;</option>
+                              <option value="RJ" data-tokens="Rio de Janeiro">Rio de Janeiro</option>
+                              <option value="RN" data-tokens="Rio Grande do Norte">Rio Grande do Norte</option>
+                              <option value="RS" data-tokens="Rio Grande do Sul">Rio Grande do Sul</option>
+                              <option value="RO" data-tokens="Rond?nia">Rond&ocirc;nia</option>
+                              <option value="RR" data-tokens="Roraima">Roraima</option>
+                              <option value="SC" data-tokens="Santa Catarina">Santa Catarina</option>
+                              <option value="SP" data-tokens="S&atilde;o Paulo">S&atilde;o Paulo</option>
+                              <option value="SE" data-tokens="Sergipe">Sergipe</option>
+                              <option value="TO" data-tokens="Tocantins">Tocantins</option>
+                          </select> 
+                        </div>                             
+                      </div>
+                      
+                      <div class="form-group row">
+                        <div class="col-sm-4 text-left">
+                          <label for="origem">Data In&iacute;cio</label>
+                        </div>
+                        <div class="col-sm-4 text-left">
+                          <label for="origem">Data Fim</label>
+                        </div>
+                        <div class="col-sm-4 text-left">
+                          <label for="origem">&nbsp;</label>
+                        </div>                              
+                      </div>
+                      <div class="form-group row">
+                        <div class="input-group col-sm-4"> 
+                            <input type="text" class="form-control datapicker" id="dtini" ng-model="dtini"  /> 
+                            <div class="input-group-append" id="btnDtIni">
+                              <button class="btn btn-primary" type="button">
+                                <a href="#" style="color: #FFFFFF"><i class="fas fa-calendar fa-sm"></i></a>
+                              </button>                  
+                            </div>                          
+                        </div>
+                        <div class="input-group col-sm-4"> 
+                            <input type="text" class="form-control datapicker" id="dtfim" ng-model="dtfim"  /> 
+                            <div class="input-group-append" id="btnDtFim">
+                              <button class="btn btn-primary" type="button" >
+                                <a href="#" style="color: #FFFFFF"><i class="fas fa-calendar fa-sm"></i></a>
+                              </button>                  
+                            </div>                          
+                        </div>
+                        <div class="col-sm-4"> 
+                            <button class="btn btn-success btn-block" ng-click="buscamanifestacoes()">Buscar</button>                           
+                        </div>
+                      </div>                          
+                    </form>                                        
+                  </div><hr>
+
+                  <div class="card-body">                                       
+                    <div class="table-responsive">
+                      <table class="table table-bordered" id="myTable" width="100%" cellspacing="0">                          
+                      </table>
+                    </div>                  
+                </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+      <% {view/layout/html_copyright.i} %>
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+  
+  <% {view/layout/html_logoutmodal.i} %>
+
+  <% {view/layout/html_footer_open_manifestacao.i} %> 
+  <% {view/layout/html_footer_bt_dttable.i} %>    
+  
+</body>
+</html>

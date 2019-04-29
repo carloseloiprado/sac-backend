@@ -1,0 +1,109 @@
+<%
+{include/config.i}
+{include/seguranca.i "GET|POST"}
+{include/contenttype.i "text/html;charset=UTF-8"}
+{include/app.i}
+
+/**
+ * 
+ * ---------------
+ *
+ *  - Portal de Solicitacoes
+ *
+ * Autor: carloseloi.prado@gmail.com
+ */
+
+%>
+
+<!DOCTYPE html>
+<html>
+
+<% {view/layout/html_head_open_manifestacao.i} %>
+<style>
+  .aberta { 
+    background-color: #feffe2;
+  }
+  .emandamento { 
+    background-color: #CEECF5;
+  }
+  .pendente { 
+    background-color: #f9b9b9;
+  }
+  .solucionada { 
+    background-color: #E0F8E0;
+  }
+  .finalizada { 
+    background-color: #F2F2F2;
+  }
+</style>
+
+<body id="page-top">
+
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    <% {view/layout/html_menu.i} %>
+
+    <!-- Begin Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <% {view/layout/html_topbar.i} %>
+
+        <!-- Begin Page Content -->
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+
+            <!-- Page Heading -->
+            <h1 class="h3 mb-2 text-gray-800">Manifesta&ccedil;&atilde;es Solucionadas</h1>
+            <p class="mb-4">Manifesta&ccedil;&atilde;es solucionadas em pool.</p>
+  
+            <!-- DataTales Example -->
+            <div class="card shadow mb-4">
+              <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Manifesta&ccedil;&atilde;es Solucionadas:</h6>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-bordered" id="myTable" width="100%" cellspacing="0">
+                    
+                  </table>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <!-- /.container-fluid -->
+         <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+      <% {view/layout/html_copyright.i} %>
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+  
+  <!-- Carregando Modal-->
+  <div class="modal fade" data-backdrop="static"   id="carregandoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Aguarde...</h5>
+       </div>
+        <div class="modal-body">Carregando...</div>
+      </div>
+    </div>
+   </div>
+
+  <% {view/layout/html_logoutmodal.i} %>
+
+  <% {view/layout/html_footer_open_manifestacao.i} %>
+
+</body>
+</html>

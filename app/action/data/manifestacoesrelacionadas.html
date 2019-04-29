@@ -1,0 +1,213 @@
+<%
+{include/contenttype.i "application/json;charset=UTF-8"}
+{include/config.i}
+{include/seguranca.i "GET"}
+{include/app.i}
+
+/**
+ * 
+ * ---------------
+ *
+ *  - Portal de Manifestação de Clientes - SAC
+ *
+ * Autor: carloseloi.prado@gmail.com.
+ */
+
+/** Saida Log */
+IF app_config.habilita_log THEN DO:
+	MESSAGE retorna_cabecalho_mensagem_log(APPPROGRAM).
+  	MESSAGE "|Termo Pesquisa..: " get-value("term").
+	MESSAGE "|tpitem..............: " get-value("ptpitem").
+	MESSAGE retorna_rodape_mensagem_log(APPPROGRAM).
+END.
+
+/** Variaveis */
+DEFINE VARIABLE termo-pesquisa   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE i 				 AS INTEGER   NO-UNDO.
+DEFINE VARIABLE c-tpitem		 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-grp-usuar      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-nom-usuar      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dt-fim           AS DATE      NO-UNDO.
+DEFINE VARIABLE hr-fim           AS INTEGER   NO-UNDO.
+DEFINE VARIABLE c-tempo-total    AS CHARACTER NO-UNDO.
+
+/** Temp-table */
+DEFINE TEMP-TABLE ttRetorno NO-UNDO
+    FIELD id     			 				AS CHARACTER
+    FIELD idtar                             AS CHARACTER
+    FIELD tempo                             AS CHARACTER
+    FIELD dtcadastro                        AS CHARACTER
+    FIELD tipo                              AS CHARACTER
+    FIELD sstatus   			 			AS CHARACTER
+    FIELD responsavel                       AS CHARACTER 
+    FIELD origem   			 			    AS CHARACTER
+    FIELD nrprotocolo		 			    AS CHARACTER
+    FIELD ddtcadastro                       AS DATE
+    FIELD hrcadastro                        AS INT
+    .
+
+DEFINE DATASET dsRetorno      FOR ttRetorno.
+
+FOR EACH manifestacao FIELDS ( origem nr-protocolo ds-tpo-manifestacao cod-grp-usuar cd-status id-manifestacao dt-cadastro hr-cadastro ) NO-LOCK
+        WHERE ( manifestacao.cd-status = 1 OR  manifestacao.cd-status = 2 ),
+    EACH usuar_grp_usuar FIELDS ( cod_usuario cod_grp_usuar ) USE-INDEX srgrpsr_usuario NO-LOCK WHERE usuar_grp_usuar.cod_usuario = usuarioCorrente,
+    FIRST tar-manifestacao FIELDS( id-tar-manifestacao  dt-execucao id-manifestacao cod-grp-usuar ds-status) NO-LOCK
+        WHERE tar-manifestacao.id-manifestacao  = manifestacao.id-manifestacao
+          AND ( tar-manifestacao.ds-status      = 'ABERTA' OR tar-manifestacao.ds-status  = 'TRÂMITADA' OR tar-manifestacao.ds-status = 'TRANSFERIDA')
+          AND tar-manifestacao.cod-grp-usuar    = usuar_grp_usuar.cod_grp_usuar           
+          AND tar-manifestacao.dt-execucao      = ?
+          AND tar-manifestacao.cod-usuar        = '',
+    EACH status-manifestacao FIELDS ( id-status ds-status) NO-LOCK 
+        WHERE status-manifestacao.id-status = manifestacao.cd-status:					
+
+    RUN pi-registro-retorno.
+
+END.
+
+
+FOR EACH hist-manifestacao FIELDS ( cod-usuar cod-grp-usuar cod-usuar-corrente id-manifestacao ) NO-LOCK 
+        WHERE hist-manifestacao.cod-usuar-corrente = usuarioCorrente OR hist-manifestacao.cod-usuar = usuarioCorrente ,
+    FIRST manifestacao FIELDS ( origem nr-protocolo ds-tpo-manifestacao cod-grp-usuar cd-status id-manifestacao dt-cadastro hr-cadastro ) NO-LOCK
+        WHERE hist-manifestacao.id-manifestacao = manifestacao.id-manifestacao,
+    EACH status-manifestacao FIELDS ( id-status ds-status) NO-LOCK 
+        WHERE status-manifestacao.id-status = manifestacao.cd-status
+    :				
+
+    RUN pi-registro-retorno-relac.
+
+END.
+
+IF ( lnkNewManifestacao <> "#" ) THEN DO: //Verifica se usu rio logado pertence ao grupo SAC
+   FOR EACH ttRetorno :
+      
+      FIND FIRST tar-manifestacao NO-LOCK
+        WHERE tar-manifestacao.id-manifestacao  = ttRetorno.id
+          AND tar-manifestacao.ds-status        <> 'FINALIZADA' 
+          AND tar-manifestacao.ds-status        <> 'SOLUCIONADA'
+          AND tar-manifestacao.dt-execucao      = ? NO-ERROR.
+          
+	  ASSIGN ttRetorno.idtar      = IF AVAIL(tar-manifestacao) THEN 'T' + STRING(tar-manifestacao.id-tar-manifestacao) ELSE '0'.
+      
+      
+   END.
+END.
+
+FOR EACH ttRetorno ,
+    LAST tar-manifestacao NO-LOCK
+        WHERE tar-manifestacao.id-manifestacao  = ttRetorno.id:
+        
+   IF tar-manifestacao.DS-STATUS = 'FINALIZADA' THEN
+        ASSIGN dt-fim  = TAR-MANIFESTACAO.dt-EXECUCAO
+               hr-fim  = TAR-MANIFESTACAO.hr-EXECUCAO
+               .
+    ELSE
+       ASSIGN dt-fim  = TODAY
+              hr-fim  = TIME
+              .
+        
+    IF ( dt-fim - ttRetorno.ddtcadastro ) = 0 THEN
+        ASSIGN c-tempo-total =  '00Dia(s) ' 
+                                + STRING( ( INT(SUBSTR(STRING(hr-fim,"HH:MM"),1,2)) - INT(SUBSTR(STRING(ttRetorno.hrcadastro,"HH:MM"),1,2))  ),'99') + 'Hs.'.
+    ELSE IF ( dt-fim - ttRetorno.ddtcadastro ) = 1 THEN
+        ASSIGN c-tempo-total = STRING( INT( ( ( 23 - int(SUBSTR(STRING(ttRetorno.hrcadastro,"HH:MM"),1,2)) ) + INT(SUBSTR(STRING(hr-fim,"HH:MM"),1,2))) / 24 ),'99' ) + 'Dia(s) ' 
+                                + STRING(( ( ( 23 - int(SUBSTR(STRING(ttRetorno.hrcadastro,"HH:MM"),1,2)) ) +  int(SUBSTR(STRING(hr-fim,"HH:MM"),1,2))) MOD 24 ),'99') + 'Hs.'.
+    ELSE
+        ASSIGN c-tempo-total = STRING((( dt-fim - ttRetorno.ddtcadastro ) - 1 ) + TRUNC(( ( 23 - int(SUBSTR(STRING(ttRetorno.hrcadastro,"HH:MM"),1,2)) ) + INT(SUBSTR(STRING(hr-fim,"HH:MM"),1,2))) / 24, 0),'99') + 'Dia(s) ' 
+                                + STRING(( ( ( 23 - int(SUBSTR(STRING(ttRetorno.hrcadastro,"HH:MM"),1,2)) ) +  int(SUBSTR(STRING(hr-fim,"HH:MM"),1,2))) MOD 24 ),'99') + 'Hs.'.
+                                
+    ASSIGN ttRetorno.tempo = string(c-tempo-total)
+           //ttRetorno.tempo = replace(ttRetorno.tempo,'00Dia(s)','')
+           //ttRetorno.tempo = replace(ttRetorno.tempo,'00Hs','')
+           .
+        
+END.
+
+RUN pi-retorno.
+
+
+/** Retorna Json */
+PROCEDURE pi-retorno:
+
+    DEFINE VARIABLE lRetOK      AS LOGICAL   NO-UNDO.
+   
+   	ASSIGN lRetOK = DATASET dsRetorno:WRITE-JSON("STREAM", "WebStream",NO, "utf-8", ?, TRUE).
+
+END PROCEDURE.
+
+
+/** Cria registro de retorno */
+PROCEDURE pi-registro-retorno-relac:
+    DEF VAR c-tpitem AS CHAR NO-UNDO.
+    DEF VAR c-tipo AS CHAR NO-UNDO.
+    
+    IF CAN-FIND(FIRST ttRetorno NO-LOCK WHERE ttRetorno.id = manifestacao.id) THEN 
+        return.
+        
+	FIND FIRST ttTpItem NO-LOCK WHERE ttTpItem.cod-grp-usuar = manifestacao.cod-grp-usuar NO-ERROR.
+    IF AVAIL(ttTpItem) THEN
+        ASSIGN c-tpitem = ttTpItem.nom-grp-usuar.
+    
+    FIND FIRST ttTipo NO-LOCK WHERE ttTipo.cod-tipo =  manifestacao.ds-tpo-manifestacao NO-ERROR.
+    IF AVAIL(ttTipo) THEN
+        ASSIGN c-tipo = ttTipo.dsc-tipo.
+   
+    FIND FIRST tar-manifestacao NO-LOCK
+        WHERE tar-manifestacao.id-manifestacao  = manifestacao.id-manifestacao
+          AND ( tar-manifestacao.ds-status      = 'ASSUMIDA' OR tar-manifestacao.ds-status = 'TRANSFERIDA' OR tar-manifestacao.ds-status = 'DEVOLVIDA' )
+          AND tar-manifestacao.cod-usuar        = usuarioCorrente 
+          AND tar-manifestacao.dt-execucao      = ? NO-ERROR.
+    
+    IF (hist-manifestacao.cod-grp-usuar <> '' ) THEN 
+        ASSIGN v-grp-usuar = fi-get-nomgrupo(hist-manifestacao.cod-grp-usuar).
+    ELSE
+        ASSIGN v-nom-usuar = fi-get-nomusuario(hist-manifestacao.cod-usuar).
+          
+	CREATE ttRetorno.
+	ASSIGN ttRetorno.id 		= manifestacao.id
+           ttRetorno.dtcadastro = STRING(manifestacao.dt-cadastro) + " " + STRING(manifestacao.hr-cadastro,"HH:MM:SS")
+           ttRetorno.tipo       =  c-tipo + ":" + c-tpitem
+           ttRetorno.sstatus    = status-manifestacao.ds-status
+           ttRetorno.responsavel    = IF (hist-manifestacao.cod-grp-usuar <> '' ) then 'Grupo: ' + v-grp-usuar else v-nom-usuar
+           ttRetorno.idtar          = IF AVAIL(tar-manifestacao) THEN 'T' + STRING(tar-manifestacao.id-tar-manifestacao) ELSE '0'
+           ttRetorno.origem         = manifestacao.origem
+           ttRetorno.nrprotocolo    = manifestacao.nr-protocolo
+           ttRetorno.ddtcadastro    = manifestacao.dt-cadastro
+           ttRetorno.hrcadastro     = manifestacao.hr-cadastro
+           .
+	
+END PROCEDURE.
+
+/** Cria registro de retorno */
+PROCEDURE pi-registro-retorno:
+    DEF VAR c-tpitem AS CHAR NO-UNDO.
+    DEF VAR c-tipo AS CHAR NO-UNDO.
+    
+	FIND FIRST ttTipo NO-LOCK WHERE ttTipo.cod-tipo =  manifestacao.ds-tpo-manifestacao NO-ERROR.
+    IF AVAIL(ttTipo) THEN
+        ASSIGN c-tipo = ttTipo.dsc-tipo.
+        
+    FIND FIRST ttTpItem NO-LOCK WHERE ttTpItem.cod-grp-usuar = manifestacao.cod-grp-usuar NO-ERROR.
+    IF AVAIL(ttTpItem) THEN
+        ASSIGN c-tpitem = ttTpItem.nom-grp-usuar.
+    
+    IF (tar-manifestacao.cod-grp-usuar <> '' ) THEN 
+        ASSIGN v-grp-usuar = fi-get-nomgrupo(tar-manifestacao.cod-grp-usuar).
+    ELSE
+        ASSIGN v-nom-usuar = fi-get-nomusuario(tar-manifestacao.cod-usuar).
+	 
+	CREATE ttRetorno.
+	ASSIGN ttRetorno.id 		= manifestacao.id
+           ttRetorno.dtcadastro = STRING(manifestacao.dt-cadastro) + " " + STRING(manifestacao.hr-cadastro,"HH:MM:SS")
+           ttRetorno.tipo       = c-tipo + ":" + c-tpitem
+           ttRetorno.sstatus    = status-manifestacao.ds-status
+           ttRetorno.responsavel    = IF (tar-manifestacao.cod-grp-usuar <> '' ) then 'Grupo: ' + v-grp-usuar else v-nom-usuar
+           ttRetorno.idtar      = 'A' + STRING(tar-manifestacao.id-tar-manifestacao)
+           ttRetorno.origem         = manifestacao.origem
+           ttRetorno.nrprotocolo    = manifestacao.nr-protocolo
+           ttRetorno.ddtcadastro = manifestacao.dt-cadastro
+           ttRetorno.hrcadastro  = manifestacao.hr-cadastro
+           .
+	
+END PROCEDURE.
+
+%>

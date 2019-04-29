@@ -1,0 +1,320 @@
+<%
+{include/config.i}
+{include/seguranca.i "GET|POST|PUT|DELETE"}
+{include/contenttype.i "text/html;charset=UTF-8"}
+{include/app.i}
+
+/**
+ * 
+ * ---------------
+ *
+ *  - Portal de Solicitacoes
+ *
+ * Autor: carloseloi.prado@gmail.com
+ */
+
+%>
+
+<!DOCTYPE html>
+<html>
+
+<% {view/layout/html_head_manifestacao.i} %>
+
+<body id="page-top" ng-app="app" ng-controller="DetailMySelfManifestacao as main">
+
+  <div data-ng-controller="DetailMySelfManifestacao" data-ng-init="init()"></div>
+
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    <% {view/layout/html_menu.i} %>
+
+    <!-- Begin Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <% {view/layout/html_topbar.i} %>
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+  
+            <!-- Content Row -->
+
+            <div class="row justify-content-center">
+
+			  <!-- Area Chart -->
+              <div class="col-xl-8 col-lg-10 col-md-10">								
+																							
+                    <div class="card shadow mb-4">
+                        <!-- Card Header - Dropdown -->
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">Detalhe Manifesta&ccedil;&atilde;o :</h6>
+                            <div class="dropdown no-arrow">
+                                <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+                                    <div class="dropdown-header">A&ccedil;&otilde;es:</div>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#historicoManifestacaoModal">Hist&oacute;rico da Manifesta&ccedil;&atilde;o</a>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#voltarModal">Voltar</a>
+                                </div>
+                            </div>											
+                        </div>
+                        <!-- Card Body -->
+                        <div class="card-body">
+                            <form class="user">
+                                <div class="form-group row">
+                                    <div class="col-sm-6 text-left">
+                                        <h4 class="h4 mb-1 text-gray-800">ID Manifesta&ccedil;&atilde;o:</h4>
+                                    </div>
+                                    <div class="col-sm-6 text-left">                               
+                                        <h4 class="h4 mb-1 text-gray-800">Protocolo:</h4>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-6 text-left">
+                                        <p class="mb-4">{{idmanifestacao}}</p>
+                                    </div>
+                                    <div class="col-sm-6 text-left">                               
+                                        <p class="mb-4">{{protocolo}}</p>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-6 text-left">
+                                        <h4 class="h4 mb-1 text-gray-800">Origem:</h4>
+                                    </div>
+                                    <div class="col-sm-6 text-left">                               
+                                        <h4 class="h4 mb-1 text-gray-800">Telefone:</h4>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-6 text-left">
+                                        <p class="mb-4">{{origem}}</p>
+                                    </div>
+                                    <div class="col-sm-6 text-left">                               
+                                        <p class="mb-4">{{telefone}}</p>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-6 text-left">
+                                        <h4 class="h4 mb-1 text-gray-800">Cliente:</h4>
+                                    </div>
+                                    <div class="col-sm-6 text-left">                               
+                                        <h4 class="h4 mb-1 text-gray-800"> Aberta:</h4>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-6 text-left">
+                                        <p class="mb-4">{{cliente}}</p>
+                                    </div>
+                                    <div class="col-sm-6 text-left">
+                                        <p class="mb-4">{{dthrmanifestacao}}</p>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-6 text-left">
+                                        <h4 class="h4 mb-1 text-gray-800">Endere&ccedil;o:</h4>
+                                    </div>
+                                    <div class="col-sm-6 text-left">                               
+                                        <h4 class="h4 mb-1 text-gray-800">&nbsp;</h4>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-12 text-left">
+                                        <p class="mb-4">{{logradouro}}<br>
+                                        {{cidadeuf}}&nbsp;&nbsp;-&nbsp;&nbsp;<b>CEP</b>&nbsp;&nbsp;:&nbsp;{{cep}}</p>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-3 text-left">
+                                        <h4 class="h4 mb-1 text-gray-800">Tipo:</h4>
+                                    </div>
+                                    <div class="col-sm-9 text-left">                               
+                                        <h4 class="h4 mb-1 text-gray-800">Item(s):</h4>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-3 text-left">
+                                        <p class="mb-3">{{tipotpitem}}</p>
+                                    </div>
+                                    <div class="col-sm-7 text-left">                               
+                                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0" style="font-size: 0.7rem;">
+                                            <thead>                                            
+                                            <tbody>                                            
+                                                <tr style="border: 0px;" ng-repeat="x in itensmanifestacao | orderBy:x.item">
+                                                    <td>{{ x.item }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-12 text-left">
+                                        <h4 class="h4 mb-1 text-gray-800">Ocorr&ecirc;ncia:</h4>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-12 text-left">
+                                        <p class="mb-4">{{ocorrencia}}</p>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-12 text-left">
+                                        <h4 class="h4 mb-1 text-gray-800">Resposta:</h4>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-12 text-left">
+                                        <p class="mb-4">{{resposta}}</p>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-12 text-left">
+                                        <h4 class="h4 mb-1 text-gray-800">Investiga&ccedil;&atilde;o:</h4>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-12 text-left">
+                                        <p class="mb-4">{{investigacao}}</p>
+                                    </div>
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <div class="form-group row">
+                                    <div class="col-sm-12 text-left row">
+                                        <h4 class="h4 mb-1 text-gray-800">Anexos:</h4>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-12 text-left">
+                                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0" style="font-size: 0.7rem;">
+                                            <thead>                                            
+                                            <tbody>                                            
+                                                <tr style="border: 0px;" ng-repeat="x in anexomanifestacao | orderBy:x.pathanexo">
+                                                    <td>
+                                                        <a href="{{x.pathanexo}}" target="_blank" class="btn btn-icon-split">
+                                                            <span  class="fas fa-paperclip"></span> 
+                                                            {{ x.nameanexo }}
+                                                        </a>
+                                                        
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>                                            
+                                    </div>
+                                </div>
+                                
+                                <div class="dropdown-divider"></div>
+                                <button class="btn btn-lg btn-secondary btn-block" data-toggle="modal" data-target="#voltarModal" >Voltar</button>
+                            </form>
+                        </div>
+                        
+                    </div>
+                </div> 				
+            </div>
+          </div>
+          <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+      <% {view/layout/html_copyright.i} %>
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+
+   <!-- Logout Modal-->
+   <div class="modal fade" data-backdrop="static"   id="voltarModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Deseja sair?</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">x</span>
+          </button>
+       </div>
+        <div class="modal-body">Voltar para minhas manifesta&ccedil;&otilde;es.</div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">N&atilde;o</button>
+          <a class="btn btn-primary" href="myself-manifestacao">Sim</a>
+        </div>
+      </div>
+    </div>
+   </div>
+
+   <!-- Carregando Modal-->
+   <div class="modal fade" data-backdrop="static"   id="carregandoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Aguarde...</h5>
+       </div>
+        <div class="modal-body">Carregando...</div>
+      </div>
+     </div>
+   </div>
+
+   <!-- historicoManifestacaoModal Modal-->
+   <div class="modal fade" data-backdrop="static"   id="historicoManifestacaoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="width: 140%">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel"><h4 class="h4 mb-1 text-gray-800">Hist&oacute;rico:</h4></h5>
+            <div class="form-group row">
+                <div class="col-sm-12 text-left row">&nbsp;</div>
+            </div>   
+            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">x</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form class="user">
+                <div class="form-group row">
+                    <div class="col-sm-12 text-left row">
+                        &nbsp;
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-12 text-left">
+                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0" style="font-size: 0.7rem;">
+                            <thead>
+                                <tr>
+                                  <th style="width: 32px;">Data Hora</th>
+                                  <th>Status</th>
+                                  <th>Parecer</th>
+                                  <th>Hist&oacute;rico</th>
+                                  <th>Respons&aacute;vel</th>                              
+                                </tr>
+                            </thead>                                            
+                            <tbody>                                            
+                                <tr style="border: 0px;" ng-repeat="x in historicomanifestacao | orderBy:x.id">
+                                    <td>{{ x.dthrmanifestacao }}</td>
+                                    <td>{{ x.sstatus }}</td>
+                                    <td>{{ x.concparecer }}</td>
+                                    <td>{{ x.parecer }}</td>
+                                    <td>{{ x.usuar }}</td>
+                                </tr>
+                            </tbody>
+                        </table>                                            
+                    </div>
+                </div>
+            </form> 
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" type="button" data-dismiss="modal">Fechar</button>
+        </div>
+        </div>
+    </div>
+   </div>
+
+  <% {view/layout/html_logoutmodal.i} %>
+
+  <% {view/layout/html_footer_manifestacao.i} %>
+
+</body>
+</html>

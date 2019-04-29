@@ -1,0 +1,453 @@
+<%
+
+{include/contenttype.i "application/json;charset=UTF-8"}
+{include/config.i}
+{include/seguranca.i "GET|POST|PUT|DELETE"}
+{include/app.i}
+
+{include/manifestacao-form.i}
+
+/**
+ * 
+ * ---------------
+ *
+ *  - Portal de Manifestação de Clientes - SAC
+ *
+ * Autor: carloseloi.prado@gmail.com
+ */
+
+/** Saida Log */
+IF app_config.habilita_log THEN DO:
+	MESSAGE retorna_cabecalho_mensagem_log(APPPROGRAM).
+	MESSAGE "|requested.............: " get-value("requested").
+	MESSAGE retorna_rodape_mensagem_log(APPPROGRAM).
+END.
+
+/** Variaveis */
+DEF VAR resquest				AS CHARACTER NO-UNDO.
+DEF VAR pRetOK      		    AS LOGICAL   NO-UNDO.
+DEF VAR pMsgResponse            AS CHARACTER NO-UNDO.
+DEF VAR parecertecnico          AS CHARACTER NO-UNDO.
+DEF VAR idManifestacao          AS CHARACTER NO-UNDO.
+DEF VAR c-tpitem                AS CHARACTER NO-UNDO.
+DEF VAR c-tipo                  AS CHARACTER NO-UNDO.
+    
+ 
+resquest       = get-value("requested").
+idManifestacao = get-value("id").   
+
+CASE REQUEST_METHOD:
+
+ 	WHEN "GET" THEN DO:
+		
+	 	IF resquest = 'buscaitensinseridosmanifestacao' THEN DO:
+
+				find first portal-manifestacao-form NO-LOCK
+						where portal-manifestacao-form.finalizado = NO and
+									portal-manifestacao-form.cod-usu-corrente = usuarioCorrente NO-ERROR.
+
+				IF AVAIL portal-manifestacao-form THEN DO:
+
+					for each  item-portal-manifestacao-form NO-LOCK
+                        where item-portal-manifestacao-form.cod-usu-corrente = 	portal-manifestacao-form.cod-usu-corrente,
+                        first item  FIELDS (desc-item it-codigo) NO-LOCK
+                        where item.it-codigo = item-portal-manifestacao-form.it-codigo:
+
+                        run pi-registro-retorno.
+
+					end.				
+				END.
+					
+				RUN pi-retorno.
+		END.
+        
+        IF resquest = 'buscaitensmanifestacao' THEN DO:
+
+				find first manifestacao NO-LOCK
+						where manifestacao.id-manifestacao = idManifestacao NO-ERROR.
+
+				IF AVAIL manifestacao THEN DO:
+
+					for each  item-manifestacao NO-LOCK
+                        where item-manifestacao.id-manifestacao = 	manifestacao.id-manifestacao
+                          AND item-manifestacao.id-manifestacao <> '',
+                        each item  FIELDS (desc-item it-codigo) NO-LOCK
+                        where item.it-codigo = item-manifestacao.it-codigo:
+
+                        run pi-retorno-item-manifestacao.
+
+					end.				
+				END.
+					
+				RUN pi-retorno.
+		END.
+		
+		IF resquest = 'buscaanexosmanifestacao' THEN DO:
+
+
+			FOR EACH portal-anexo-manifestacao-form NO-LOCK
+				WHERE portal-anexo-manifestacao-form.cod-usu-corrente   = usuarioCorrente						
+					AND portal-anexo-manifestacao-form.path-anexo         = get-cookie("SessionContextToken"):
+
+								run pi-registro-retorno-anexo.			
+			END.
+				
+			RUN pi-retorno.
+		END.
+
+		IF resquest = 'buscaformmanifestacao' THEN DO:
+
+            message 'usuarioCorrente.: ' usuarioCorrente.
+             
+			find first portal-manifestacao-form NO-LOCK
+					where portal-manifestacao-form.finalizado = NO and
+								portal-manifestacao-form.cod-usu-corrente = usuarioCorrente NO-ERROR.
+
+			IF AVAIL portal-manifestacao-form THEN DO:
+
+				CREATE response.
+				ASSIGN  response.bairro 		= portal-manifestacao-form.bairro  				    
+						response.uf				= portal-manifestacao-form.cd-uf				  
+						response.cep			= portal-manifestacao-form.cep				 
+						response.cidade			= portal-manifestacao-form.cidade				 				   
+						response.complemento	= portal-manifestacao-form.complemento		 
+						response.investigacao	= portal-manifestacao-form.ds-investigacao	 
+						response.rua			= portal-manifestacao-form.ds-logradouro		 
+						response.ocorrencia		= portal-manifestacao-form.ds-ocorrencia		 
+						response.resposta		= if portal-manifestacao-form.ds-resp-imediata <> "" then portal-manifestacao-form.ds-resp-imediata else app_config.texto_resp_imediata		  
+						response.tipo			= if portal-manifestacao-form.ds-tpo-manifestacao <> "" then portal-manifestacao-form.ds-tpo-manifestacao else "elogio"
+						response.tpitem			= if portal-manifestacao-form.ds-tp-tpo-manifestacao <> "" then portal-manifestacao-form.ds-tp-tpo-manifestacao	else "SAI"  				   
+						response.cliente		= portal-manifestacao-form.nm-cliente			  				   
+						response.nrlogradouro	= portal-manifestacao-form.nr-logradouro		  
+						response.protocolo		= portal-manifestacao-form.nr-protocolo		  
+						response.telefone		= portal-manifestacao-form.nr-telefone		  
+						response.origem			= portal-manifestacao-form.origem
+						.				
+			END.
+			ELSE DO:
+            
+                CREATE portal-manifestacao-form.
+                ASSIGN portal-manifestacao-form.finalizado              = NO
+                       portal-manifestacao-form.origem                  = '0800' 
+					   portal-manifestacao-form.cod-usu-corrente        = usuarioCorrente
+                       portal-manifestacao-form.ds-tpo-manifestacao     = 'elogio'
+                       portal-manifestacao-form.ds-tp-tpo-manifestacao  = 'SAI'.
+                       
+				CREATE response.
+				ASSIGN response.bairro 		    = portal-manifestacao-form.bairro  				    
+						response.uf				= portal-manifestacao-form.cd-uf				  
+						response.cep			= portal-manifestacao-form.cep				 
+						response.cidade			= portal-manifestacao-form.cidade				 				   
+						response.complemento	= portal-manifestacao-form.complemento		 
+						response.investigacao	= portal-manifestacao-form.ds-investigacao	 
+						response.rua			= portal-manifestacao-form.ds-logradouro		 
+						response.ocorrencia		= portal-manifestacao-form.ds-ocorrencia		 
+						response.resposta		= if portal-manifestacao-form.ds-resp-imediata <> "" then portal-manifestacao-form.ds-resp-imediata else app_config.texto_resp_imediata		  
+						response.tipo			= portal-manifestacao-form.ds-tpo-manifestacao
+						response.tpitem			= portal-manifestacao-form.ds-tp-tpo-manifestacao	  				   
+						response.cliente		= portal-manifestacao-form.nm-cliente			  				   
+						response.nrlogradouro	= portal-manifestacao-form.nr-logradouro		  
+						response.protocolo		= portal-manifestacao-form.nr-protocolo		  
+						response.telefone		= portal-manifestacao-form.nr-telefone		  
+						response.origem			= portal-manifestacao-form.origem
+						.
+            END.
+            
+			DATASET dsResponse:WRITE-JSON("STREAM", "WebStream",NO, "utf-8", ?, TRUE).
+		END.
+        
+        IF resquest = 'buscamanifestacao' THEN DO:
+
+            find first manifestacao NO-LOCK
+					where manifestacao.id-manifestacao = idManifestacao NO-ERROR.
+
+			IF AVAIL manifestacao THEN DO:
+                
+                FIND FIRST ttTipo NO-LOCK WHERE ttTipo.cod-tipo =  manifestacao.ds-tpo-manifestacao NO-ERROR.
+                IF AVAIL(ttTipo) THEN
+                     ASSIGN c-tipo = ttTipo.dsc-tipo.
+                     
+                FIND FIRST ttTpItem NO-LOCK WHERE ttTpItem.cod-grp-usuar = manifestacao.cod-grp-usuar NO-ERROR.
+                IF AVAIL(ttTpItem) THEN
+                     ASSIGN c-tpitem = ttTpItem.nom-grp-usuar.
+                
+				CREATE response.
+				ASSIGN  response.bairro 		= manifestacao.bairro  				    
+						response.uf				= manifestacao.cd-uf				  
+						response.cep			= manifestacao.cep				 
+						response.cidade			= manifestacao.cidade				 				   
+						response.complemento	= manifestacao.complemento		 
+						response.investigacao	= manifestacao.ds-investigacao	 
+						response.rua			= manifestacao.ds-logradouro		 
+						response.ocorrencia		= manifestacao.ds-ocorrencia		 
+						response.resposta		= manifestacao.ds-resp-imediata   	  
+						response.tipo			= manifestacao.ds-tpo-manifestacao
+						response.tpitem			= c-tipo + ": " + c-tpitem	  				   
+						response.cliente		= manifestacao.nm-cliente			  				   
+						response.nrlogradouro	= manifestacao.nr-logradouro		  
+						response.protocolo		= manifestacao.nr-protocolo		  
+						response.telefone		= manifestacao.nr-telefone		  
+						response.origem			= manifestacao.origem
+						. 
+                           			
+			END.
+            
+			DATASET dsResponse:WRITE-JSON("STREAM", "WebStream",NO, "utf-8", ?, TRUE).
+		END.
+
+  END.
+
+  WHEN "POST" THEN DO:
+
+		/*INCLUSÃO ITEM MANIFESTAÇÃO*/
+		IF resquest = 'criaitemmanifestacao' THEN DO:
+
+			RUN pi-red-json (INPUT-OUTPUT lg-RetOK, INPUT-OUTPUT c-MsgResponse).
+
+			IF lg-RetOK AND CAN-FIND(FIRST body) THEN DO:
+
+				find first body NO-LOCK NO-ERROR.
+
+				FIND FIRST item-portal-manifestacao-form
+					WHERE item-portal-manifestacao-form.cod-usu-corrente = usuarioCorrente AND
+						  item-portal-manifestacao-form.it-codigo        = body.item
+						NO-ERROR.
+
+				IF NOT AVAIL(item-portal-manifestacao-form) THEN
+					CREATE item-portal-manifestacao-form.
+
+				ASSIGN 	item-portal-manifestacao-form.cod-usu-corrente	 = usuarioCorrente
+						item-portal-manifestacao-form.it-codigo          = body.item
+						item-portal-manifestacao-form.ds-tpo-item        = body.ds_tp_item
+						.
+
+				CREATE ttRetornoHeader.
+				ASSIGN ttRetornoHeader.retornoSucesso 	= true
+						ttRetornoHeader.retornoMensagem = fromUtf8ToIbm850("Item inserido com sucesso.").
+					
+			END.
+			ELSE DO:
+				CREATE ttRetornoHeader.
+				ASSIGN ttRetornoHeader.retornoSucesso 	= true
+					ttRetornoHeader.retornoMensagem 	= c-MsgResponse.
+			END.
+
+			DATASET dsRetornoHeader:WRITE-JSON("STREAM", "WebStream",NO, "utf-8", ?, TRUE).
+		END.
+        
+        /*EDIÇÃO ITEM MANIFESTAÇÃO*/
+		IF resquest = 'editaitemmanifestacao' THEN DO:
+
+			RUN pi-red-json (INPUT-OUTPUT lg-RetOK, INPUT-OUTPUT c-MsgResponse).
+
+			IF lg-RetOK AND CAN-FIND(FIRST body) THEN DO:
+
+				find first body NO-LOCK NO-ERROR.
+
+				FIND FIRST item-manifestacao
+					WHERE item-manifestacao.id-manifestacao = idManifestacao AND
+						  item-manifestacao.it-codigo       = body.item
+						NO-ERROR.
+
+				if NOT AVAIL(item-manifestacao) THEN
+                   CREATE item-manifestacao.
+                   
+                ASSIGN item-manifestacao.id-manifestacao	= idManifestacao
+                       item-manifestacao.it-codigo          = body.item
+                       .
+
+				CREATE ttRetornoHeader.
+				ASSIGN ttRetornoHeader.retornoSucesso 	= true
+						ttRetornoHeader.retornoMensagem = fromUtf8ToIbm850("Item editado com sucesso.").
+					
+			END.
+			ELSE DO:
+				CREATE ttRetornoHeader.
+				ASSIGN ttRetornoHeader.retornoSucesso 	= true
+					ttRetornoHeader.retornoMensagem 	= c-MsgResponse.
+			END.
+
+			DATASET dsRetornoHeader:WRITE-JSON("STREAM", "WebStream",NO, "utf-8", ?, TRUE).
+		END.
+
+        /*CRIAR PEDIDO*/
+		IF resquest = 'criamanifestacaoform' THEN DO:
+
+            message 'usuarioCorrente.: ' usuarioCorrente.
+            
+			RUN pi-red-json (INPUT-OUTPUT lg-RetOK, INPUT-OUTPUT c-MsgResponse).
+
+			IF lg-RetOK AND CAN-FIND(FIRST body)  THEN DO:
+
+				find first body NO-LOCK NO-ERROR.
+
+				find first portal-manifestacao-form EXCLUSIVE-LOCK
+					where portal-manifestacao-form.finalizado 	= NO and							 
+						portal-manifestacao-form.cod-usu-corrente = usuarioCorrente NO-ERROR.
+
+				IF NOT AVAIL portal-manifestacao-form THEN				
+					CREATE portal-manifestacao-form.
+
+				ASSIGN  portal-manifestacao-form.finalizado 		= NO 							 
+						portal-manifestacao-form.cod-usu-corrente 	= usuarioCorrente
+						portal-manifestacao-form.bairro				= body.bairro 				    
+						portal-manifestacao-form.cd-uf				= body.uf 
+						portal-manifestacao-form.cep				= body.cep 
+						portal-manifestacao-form.cidade				= body.cidade 				   
+						portal-manifestacao-form.complemento			= body.complemento 
+						portal-manifestacao-form.ds-investigacao		= body.investigacao 
+						portal-manifestacao-form.ds-logradouro			= body.rua 
+						portal-manifestacao-form.ds-ocorrencia			= body.ocorrencia 
+						portal-manifestacao-form.ds-resp-imediata		= body.resposta 
+						portal-manifestacao-form.ds-tpo-manifestacao	= IF body.tipo <> ? THEN body.tipo ELSE portal-manifestacao-form.ds-tpo-manifestacao
+						portal-manifestacao-form.ds-tp-tpo-manifestacao	= IF body.tpitem <> ? THEN body.tpitem ELSE portal-manifestacao-form.ds-tp-tpo-manifestacao 				   
+						portal-manifestacao-form.nm-cliente				= body.cliente 				   
+						portal-manifestacao-form.nr-logradouro			= body.nrlogradouro 
+						portal-manifestacao-form.nr-protocolo			= body.protocolo 
+						portal-manifestacao-form.nr-telefone			= body.telefone 
+						portal-manifestacao-form.origem					= body.origem
+						.
+
+				create ttRetornoHeader.
+				ASSIGN ttRetornoHeader.retornoSucesso 	= true
+						ttRetornoHeader.retornoMensagem	= 'Criado com sucesso'.
+			END.
+			DATASET dsRetornoHeader:WRITE-JSON("STREAM", "WebStream",NO, "utf-8", ?, TRUE).
+		END.
+         
+		/*CRIAR PEDIDO*/
+		IF resquest = 'editamanifestacao' THEN DO:
+
+            RUN pi-red-json (INPUT-OUTPUT lg-RetOK, INPUT-OUTPUT c-MsgResponse).
+
+			IF lg-RetOK AND CAN-FIND(FIRST body)  THEN DO:
+
+				find first body NO-LOCK NO-ERROR.
+
+				find first manifestacao EXCLUSIVE-LOCK
+					where manifestacao.id-manifestacao = idManifestacao NO-ERROR.
+
+				if AVAIL manifestacao THEN
+                   ASSIGN manifestacao.ds-investigacao		= body.investigacao
+						  manifestacao.ds-ocorrencia		= body.ocorrencia 
+						  manifestacao.ds-resp-imediata		= body.resposta
+						  .
+
+				create ttRetornoHeader.
+				ASSIGN ttRetornoHeader.retornoSucesso 	= true
+						ttRetornoHeader.retornoMensagem	= 'Editado com sucesso'.
+			END.
+			DATASET dsRetornoHeader:WRITE-JSON("STREAM", "WebStream",NO, "utf-8", ?, TRUE).
+		END.
+
+		/*FINALIZAR A MANIFESTAÇÃO*/
+		IF resquest = 'finalizamanifestacaoform' THEN DO:
+
+			ASSIGN pRetOK 		= true
+                   pMsgResponse = "".
+                   .
+            RUN pi-red-json (INPUT-OUTPUT lg-RetOK, INPUT-OUTPUT c-MsgResponse).
+            
+            find first body no-lock no-error.
+            
+            message 'avail ' avail(body).
+            if avail(body) then
+                assign parecertecnico   = body.parecertecnico
+                       .
+                       
+			RUN pi-finaliza-manifestacao(INPUT-OUTPUT pRetOK,INPUT-OUTPUT pMsgResponse, INPUT parecertecnico).
+
+			create ttRetornoHeader.
+			ASSIGN ttRetornoHeader.retornoSucesso 	= pRetOK
+				   ttRetornoHeader.retornoMensagem	= if pRetOK then pMsgResponse + " inserida com sucesso" else pMsgResponse.
+			
+			DATASET dsRetornoHeader:WRITE-JSON("STREAM", "WebStream",NO, "utf-8", ?, TRUE).
+
+		END.
+        
+		/*FINALIZAR A EDIÇÃO MANIFESTAÇÃO*/
+		IF resquest = 'finalizaedicaomanifestacao' THEN DO:
+
+			ASSIGN pRetOK 		= true
+                   pMsgResponse = "".
+                   .
+            RUN pi-red-json (INPUT-OUTPUT lg-RetOK, INPUT-OUTPUT c-MsgResponse).
+            
+            find first body no-lock no-error.
+            
+            message 'avail ' avail(body).
+            if avail(body) then
+                assign parecertecnico   = body.parecertecnico
+                       .
+                       
+			RUN pi-finaliza-edicao-manifestacao(INPUT-OUTPUT pRetOK,INPUT-OUTPUT pMsgResponse, INPUT idManifestacao, INPUT parecertecnico).
+
+			create ttRetornoHeader.
+			ASSIGN ttRetornoHeader.retornoSucesso 	= pRetOK
+				   ttRetornoHeader.retornoMensagem	= if pRetOK then pMsgResponse + " editada com sucesso" else pMsgResponse.
+			
+			DATASET dsRetornoHeader:WRITE-JSON("STREAM", "WebStream",NO, "utf-8", ?, TRUE).
+
+		END.
+	END.
+
+	/*WHEN "PUT" THEN DO:
+	END.*/
+
+	WHEN "DELETE" THEN DO:
+
+		IF get-value("requested") = 'excluiitemmanifestacao' THEN DO:
+
+			find first manifestacao NO-LOCK
+						where manifestacao.id-manifestacao = idManifestacao NO-ERROR.
+
+            IF AVAIL manifestacao THEN DO:
+
+               for each  item-manifestacao EXCLUSIVE-LOCK
+                   where item-manifestacao.id-manifestacao = manifestacao.id-manifestacao
+                     AND item-manifestacao.it-codigo       = get-value("it_codigo"):
+                     
+                     delete item-manifestacao.
+      
+                     create ttRetornoHeader.
+                     ASSIGN ttRetornoHeader.retornoSucesso 	= true
+                            ttRetornoHeader.retornoMensagem	= 'Excluido com sucesso'.
+                     
+               end.
+            END.
+            ELSE DO:
+                find first portal-manifestacao-form NO-LOCK
+      					where portal-manifestacao-form.finalizado 			= NO and
+      						  portal-manifestacao-form.cod-usu-corrente 	= usuarioCorrente NO-ERROR.
+      
+      			IF AVAIL portal-manifestacao-form THEN DO:
+      
+      				find first item-portal-manifestacao-form EXCLUSIVE-LOCK
+      						where item-portal-manifestacao-form.cod-usu-corrente	= portal-manifestacao-form.cod-usu-corrente and
+      							  item-portal-manifestacao-form.it-codigo 			= STRING(get-value("it_codigo")) NO-ERROR.
+      
+      				IF AVAIL item-portal-manifestacao-form THEN DO:
+      
+      					delete item-portal-manifestacao-form.
+      
+      					create ttRetornoHeader.
+      					ASSIGN ttRetornoHeader.retornoSucesso 	= true
+      						   ttRetornoHeader.retornoMensagem	= 'Excluido com sucesso'.
+      
+      				END.
+      
+      			END.
+            END.
+            
+			DATASET dsRetornoHeader:WRITE-JSON("STREAM", "WebStream",NO, "utf-8", ?, TRUE).
+
+		END.
+
+	END.
+
+	OTHERWISE
+		MESSAGE 'OTHERWISE'.
+
+END CASE.
+
+%>

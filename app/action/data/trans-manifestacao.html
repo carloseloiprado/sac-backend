@@ -1,0 +1,83 @@
+
+<%
+
+{include/contenttype.i "application/json;charset=UTF-8"}
+{include/config.i}
+{include/seguranca.i "GET|POST|PUT|DELETE"}
+{include/app.i}
+
+{include/manifestacao-form.i}
+
+/**
+ * 
+ * ---------------
+ *
+ *  - Portal de Manifestação de Clientes - SAC
+ *
+ * Autor: carloseloi.prado@gmail.com
+ */
+
+/** Saida Log */
+IF app_config.habilita_log THEN DO:
+	MESSAGE retorna_cabecalho_mensagem_log(APPPROGRAM).
+	MESSAGE "|requested.............: " get-value("requested").
+	MESSAGE retorna_rodape_mensagem_log(APPPROGRAM).
+END.
+
+/** Variaveis */
+DEF VAR resquest		      AS CHARACTER NO-UNDO.
+DEF VAR pRetOK      	      AS LOGICAL   NO-UNDO.
+DEF VAR pMsgResponse          AS CHARACTER NO-UNDO.
+DEF VAR idtarmanifestacao     AS CHARACTER NO-UNDO.
+DEF VAR idmanifestacao        AS CHARACTER NO-UNDO.
+DEF VAR ptpitem               AS CHARACTER NO-UNDO.
+DEF VAR parecertecnico        AS CHARACTER NO-UNDO.
+DEF VAR conclusao             AS CHARACTER NO-UNDO.
+
+
+resquest          = get-value("requested").
+idtarmanifestacao = get-value("idtarmanifestacao").
+idmanifestacao    = get-value("idmanifestacao").
+ptpitem           = get-value("ptpitem").
+//parecertecnico    = get-value("parecertecnico").
+//conclusao         = get-value("conclusao").
+
+CASE REQUEST_METHOD:
+
+  WHEN "POST" THEN DO:
+
+		/*FINALIZAR A MANIFESTAÇÃO*/
+		IF resquest = 'transferemanifestacao' THEN DO:
+
+			ASSIGN pRetOK 		= true
+                   pMsgResponse = "".
+                    .
+            RUN pi-red-json (INPUT-OUTPUT lg-RetOK, INPUT-OUTPUT c-MsgResponse).
+            
+            find first body no-lock no-error.
+            
+            message 'avail ' avail(body) skip
+            ptpitem.
+            if avail(body) then
+                assign parecertecnico   = body.parecertecnico
+                       conclusao        = body.conclusao
+                       .
+                       
+			RUN pi-transfere-manifestacao(INPUT-OUTPUT pRetOK, INPUT-OUTPUT pMsgResponse, INPUT idtarmanifestacao, INPUT idmanifestacao, INPUT ptpitem, INPUT parecertecnico, INPUT conclusao).
+
+			create ttRetornoHeader.
+			ASSIGN ttRetornoHeader.retornoSucesso 	= pRetOK
+				   ttRetornoHeader.retornoMensagem	= if pRetOK then pMsgResponse else pMsgResponse.
+			
+			DATASET dsRetornoHeader:WRITE-JSON("STREAM", "WebStream",NO, "utf-8", ?, TRUE).
+
+		END.
+	END.
+
+	OTHERWISE
+		MESSAGE 'OTHERWISE'.
+
+END CASE.
+
+%>
+

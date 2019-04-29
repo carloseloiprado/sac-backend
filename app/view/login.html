@@ -1,0 +1,164 @@
+<%
+{include/config.i}
+
+PROCEDURE output-header :
+
+	DEFINE VARIABLE hSession        AS HANDLE    NO-UNDO.
+	DEFINE VARIABLE c-token         AS CHARACTER NO-UNDO.
+	DEFINE VARIABLE c-valor					AS CHARACTER NO-UNDO.
+
+	IF get-cookie("SessionContextToken") <> ? THEN DO:
+
+		RUN web/wutp/wu-sessao.p PERSISTENT SET hSession.
+		RUN setToken IN hSession (INPUT get-cookie("SessionContextToken") ).
+		RUN deleteContext IN hSession (INPUT "sessionTimeout":U).
+		RUN deleteContext IN hSession (INPUT "usuarioCorrente":U).
+        RUN deleteContext IN hSession (INPUT "lnkNewManifestacao":U).
+		RUN deleteContext IN hSession (INPUT "representanteCorrente":U).
+		RUN deleteContext IN hSession (INPUT "credenciaisCorrentes":U).
+
+		delete-cookie("SessionContextToken",?,?).
+
+	END.
+
+	output-http-header("Cache-Control","No-Cache").
+	output-http-header("Pragma","no-cache" ).
+	output-http-header("Expires","0" ).
+	output-content-type("text/html;charset=UTF-8").
+
+END PROCEDURE.
+
+
+
+
+
+%>
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<html>
+	<head>
+		<meta http-equiv="Expires" content="0">
+		<meta http-equiv="Cache-Control" content="no-cache" >
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  		<meta name="description" content="">
+  		<meta name="author" content="">
+		<title>Portal SAC Ingleza</title>
+		<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+		<!--[if lt IE 9]>
+			<script src="' app_config.caminho_assets '/js/vendor/html5shiv.js"></script>
+			<script src="' app_config.caminho_assets '/js/vendor/respond.min.js"></script>
+		<![endif]-->
+		<!-- Custom fonts for this template-->
+		<link href="<%=app_config.caminho_assets%>/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+		<link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+	  
+		<!-- Custom styles for this template-->
+		<link href="<%=app_config.caminho_assets%>/css/sb-admin-2.min.css" rel="stylesheet">
+
+	</head>
+	<body class="bg-gradient-primary">
+
+		<div class="container">
+
+			<%
+			CASE get-value("status"):
+				WHEN ENCODE("1") THEN DO:
+				%>
+					<div class="alert alert-danger">Usu&aacute;rio ou senha incorretos! Tente novamente.</div>
+				<%
+				END.
+
+				WHEN ENCODE("2") THEN DO:
+				%>
+					<div class="alert alert-danger">Sess&atilde;o inv&aacute;lida, por favor efetue o login novamente.</div>
+				<%
+				END.
+
+				WHEN ENCODE("3") THEN DO:
+				%>
+					<div class="alert alert-danger">Usu&aacute;rio n&atilde;o cadastrado para acesso Marketing/Outras Saidas.</div>
+				<%
+				END.
+
+				WHEN ENCODE("4") THEN DO:
+				%>
+					<div class="alert alert-danger">Acesso n&atilde;o permitido!</div>
+				<%
+				END.
+
+				WHEN ENCODE("5") THEN DO:
+				%>
+					<div class="alert alert-success">Senha modificada com sucesso! Por favor fa&ccedil;a o login com a nova senha.</div>
+				<%
+				END.
+
+				WHEN ENCODE("6") THEN DO:
+				%>
+					<div class="alert alert-success">Viola&ccedil;&atilde;o de acesso!.</div>
+				<%
+				END.
+
+				WHEN ENCODE("7") THEN DO:
+				%>
+					<div class="alert alert-danger">Sess&atilde;o expirou devido a inatividade, por favor efetue o login novamente.</div>
+				<%
+				END.
+
+				WHEN ENCODE("8") THEN DO:
+				%>
+					<div class="alert alert-success">Senha enviada com sucesso! Por favor fa&ccedil;a o login com a nova senha.</div>
+				<%
+				END.
+
+			END CASE.
+
+			%>
+
+        <!-- Outer Row -->
+    <div class="row justify-content-center">
+
+		<div class="col-xl-6 col-lg-6 col-md-8">
+  
+		  <div class="card o-hidden border-0 shadow-lg my-5">
+			<div class="card-body p-0">
+			  <!-- Nested Row within Card Body -->
+			  <div class="row">				
+				<div class="col-lg-12">
+				  <div class="p-5">
+					<div class="text-center">
+					  <h1 class="h4 text-gray-900 mb-4">Manifesta&ccedil;&atilde;o de Cliente - SAC!</h1>
+					</div>
+					<form class="user" action="action/auth.html" method="POST">
+					  <div class="form-group">
+						<input type="text" class="form-control border-left-primary" name="cod-usuario" id="cod-usuario" aria-describedby="emailHelp" placeholder="Entre com usu&aacute;rio...">
+					  </div>
+					  <div class="form-group">
+						<input type="password" class="form-control border-left-primary" name="senha" id="senha" placeholder="Senha">
+					  </div>
+					  <button class="btn btn-lg btn-primary btn-block" type="submit">Entrar</button>
+					</form>
+					<hr>
+					<div class="text-center">
+					  <a class="small" href="forgot-password.html">Esqueceu a senha?</a>
+					</div>
+				  </div>
+				</div>
+			  </div>
+			</div>
+		  </div>
+  
+		</div>
+  
+	  </div>
+  
+	</div>	
+	<!-- Bootstrap core JavaScript-->
+	
+	<% {view/layout/html_footer.i} %>   
+	
+  </body>
+</html>

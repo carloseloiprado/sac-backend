@@ -1,0 +1,21 @@
+-mmax 32768
+-s 800
+-inp 32000
+-T e:\totvs\webspeed\sac\spool
+-tok 1600
+-TB 24
+-TM 24
+-d dmy
+-yr4def
+-lkwtmo 3600
+-E
+-Bt 2048
+-Mm 8192
+-cpstream ibm850
+-h 20
+-nosavepoint
+ 
+-db emsfnd 	-ld emsfnd 	-S 53620 -H 10.12.4.93 -N tcp
+-db ems2cad -ld mgcad 	-S 53612 -H 10.12.4.93 -N tcp
+-db ems2mov -ld mgmov 	-S 53601 -H 10.12.4.93 -N tcp
+-db emsesp 	-ld emsesp  -S 53640 -H 10.12.4.93 -N tcp 

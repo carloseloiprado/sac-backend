@@ -1,0 +1,420 @@
+<%
+{include/config.i}
+{include/seguranca.i "GET|POST"}
+{include/contenttype.i "text/html;charset=UTF-8"}
+{include/app.i}
+
+/**
+ * 
+ * ---------------
+ *
+ *  - Portal de Solicitacoes
+ *
+ * Autor: carloseloi.prado@gmail.com
+ */
+
+%>
+
+<!DOCTYPE html>
+<html>
+
+<% {view/layout/html_head_manifestacao.i} %>
+
+<body id="page-top" ng-app="app" ng-controller="NovaManifestacao as main">
+
+  <!--div data-ng-controller="NovaManifestacao" data-ng-init="init()"></div-->
+
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    <% {view/layout/html_menu.i} %>
+
+    <!-- Begin Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <% {view/layout/html_topbar.i} %>
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+  
+            <!-- Content Row -->
+            <div class="row justify-content-center">
+
+							<!-- Area Chart -->
+              <div class="col-xl-8 col-lg-10 col-md-10">								
+												
+                    <div class="col-md-12" id="mensagem">
+                        <div id="mensagemShow"></div>
+                    </div>											
+                    <div class="card shadow mb-4">
+                        <!-- Card Header - Dropdown -->
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">Cadastro de Nova Manifesta&ccedil;&atilde;o:</h6>											
+                        </div>
+                        <!-- Card Body -->
+                        <div class="card-body">   
+                            <form class="user" name="formManifestacao" id="formManifestacao">
+                                <div class="form-group row">
+                                  <div class="col-sm-3 text-right">
+                                    <label for="protocolo">Protocolo<label style="color:#FF0000">*</label>:</label>
+                                  </div>
+                                    <div class="col-sm-5">                               
+                                      <input required type="text" class="form-control border-left-primary" name="protocolo" id="protocolo" ng-model="protocolo" maxlength="20" placeholder="N.&ordm; do Protocolo">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                  <div class="col-sm-3 text-right">
+                                    <label for="origem">Origem<label style="color:#FF0000">*</label>:</label>
+                                  </div>
+                                  <div class="col-sm-5">
+                                    <select class="form-control selectpicker" name="origem" id="origem" data-live-search="true"  
+                                    required data-style="btn-primary">
+                                      <option data-tokens="0800">0800</option>
+                                      <option data-tokens="Email">Email (Blog / Site)</option>
+                                      <option data-tokens="Redes" >Redes Sociais</option>
+                                      <option data-tokens="Outros" >Outros</option>
+                                    </select> 
+                                  </div>                               
+                                </div>
+                                <div class="form-group row">
+                                  <div class="col-sm-3 text-right">
+                                    <label for="telefone">Telefone<label style="color:#FF0000">*</label>:</label>
+                                  </div>
+                                  <div class="col-sm-5">                                    
+                                    <input id="telefone" name="telefone" ng-model="telefone" class="form-control border-left-primary" placeholder="XX XXXXX-XXXX" required type="text" maxlength="13">
+                                  </div> 
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-3 text-right">
+                                      <label for="cliente">Cliente<label style="color:#FF0000">*</label>:</label>
+                                    </div>
+                                    <div class="col-sm-8">                                     
+                                      <input id="cliente" name="cliente" class="form-control border-left-primary" type="text" 
+                                      maxlength="80" required  placeholder="Nome do cliente" ng-model="cliente">
+                                    </div>
+                                </div><hr>
+                                <div class="form-group row">
+                                    <div class="col-sm-3 text-right">
+                                      <label for="cep">CEP<label style="color:#FF0000">*</label>:</label>
+                                    </div>
+                                    <div class="row" style="margin-left:0px">
+                                      <div class="col-sm-6">                                    
+                                        <input id="cep" name="cep" ng-model="cep" class="form-control border-left-primary" placeholder="XX.XXX-XXX" required type="text" maxlength="9">
+                                      </div>
+                                      <div class="col-sm-3">
+                                        <a href="#" id="btnCep" class="btn btn-primary btn-icon-split">
+                                            <span class="icon text-white" style="color: #FFFFFF">
+                                              <i class="fas fa-check"></i>
+                                            </span>
+                                            <span class="text" style="color: #FFFFFF">Buscar</span>
+                                        </a>
+                                      </div>
+                                    </div>
+                                </div><hr>
+                                
+                                <div id="mensagemShowCep"></div>
+                                <div class="form-group row">
+                                  <div class="col-sm-3 text-right">
+                                    <label for="rua">Logradouro<label style="color:#FF0000">*</label>:</label>
+                                  </div>
+                                  <div class="row col-sm-9">
+                                    <div class="col-sm-9">                                    
+                                        <input id="rua" name="rua" ng-model="rua" class="form-control border-left-primary" required type="text" maxlength="80" placeholder="Rua/Avenida..." >
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <input id="nrlogradouro" name="nrlogradouro" ng-model="nrlogradouro" required class="form-control border-left-primary" type="text" maxlength="8" placeholder="N.&ordm;" >
+                                    </div>
+                                  </div>                                  
+                                </div>
+                                <div class="form-group row">
+                                  <div class="col-sm-3 text-right">
+                                    <label for="complemento">Complemento:</label>
+                                  </div>                                  
+                                  <div class="col-sm-4">                                    
+                                    <input id="complemento" name="complemento" ng-model="complemento" class="form-control border-left-primary" type="text" maxlength="30">
+                                  </div> 
+                                </div>
+                                <div class="form-group row">
+                                  <div class="col-sm-3 text-right">
+                                    <label for="bairro">Bairro<label style="color:#FF0000">*</label>:</label>
+                                  </div>                                  
+                                  <div class="col-sm-6">                                    
+                                    <input id="bairro" name="bairro" ng-model="bairro" class="form-control border-left-primary" required type="text" maxlength="30">
+                                  </div> 
+                                </div>                                
+                                <div class="form-group row">
+                                    <div class="col-sm-3 text-right">
+                                      <label for="cidade">Cidade<label style="color:#FF0000">*</label>:</label>
+                                    </div>                                  
+                                    <div class="col-sm-6">                                    
+                                      <input id="cidade" name="cidade" ng-model="cidade" class="form-control border-left-primary" required type="text" maxlength="35">
+                                    </div> 
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-3 text-right">
+                                      <label for="uf">UF<label style="color:#FF0000">*</label>:</label>
+                                    </div>                                  
+                                    <div class="col-sm-2">                                    
+                                      <input id="uf" name="uf" ng-model="uf" class="form-control border-left-primary" required type="text" maxlength="3">
+                                    </div> 
+                                </div> <hr>                                
+                                <div class="form-group row">
+                                  <div class="col-sm-3 text-right">
+                                    <label for="tipo">Tipo<label style="color:#FF0000">*</label>:</label>
+                                  </div>
+                                  <div class="col-sm-4">
+                                    <select class="form-control selectpicker" name="tipo" id="tipo" required  data-live-search="true" data-style="btn-primary">
+                                      <option ng-disabled="disabledItem"></option>
+                                      <option value='elogio' data-tokens="elogio">Elogio</option>
+                                      <option value='informacao' data-tokens="informacao">Informa&ccedil;&atilde;o</option>
+                                      <option value='sugestao' data-tokens="sugestao" >Sugest&ccedil;&atilde;o</option>
+                                      <option value='reclamacao' data-tokens="reclamacao" >Reclama&ccedil;&atilde;o</option>
+                                      <option value='solicitacao' data-tokens="solicitacao" >Solicita&ccedil;&atilde;o</option>
+                                      <option value='ondeencontrar' data-tokens="ondeencontrar" >Onde Encontrar</option>
+                                    </select> 
+                                  </div>
+                                  <div class="col-sm-5">
+                                      <select class="form-control selectpicker" name="tpitem" required id="tpitem" data-live-search="true" data-style="btn-primary">
+                                        <option ng-disabled="disabledItemTpoItem"></option>
+                                        <option value='SAI' data-tokens="Produto">Produto</option>                                     
+                                        <option value='SAE' data-tokens="Embalagem">Embalagem</option>
+                                        <option value='SAL' data-tokens="Transporte Log">Transporte/Log&iacute;stica</option>
+                                        <option value='SAP' data-tokens="Produ">Produ&ccedil;&atilde;o</option>
+                                      </select> 
+                                  </div>                                 
+                                </div><hr/>
+                                <div class="form-group row">                                 
+                                  <div ng-if="errovalidafinalizaform" class="alert alert-danger">
+                                    Manifesta&ccedil;&atilde;o tipo reclama&ccedil;&atilde;o (Produto ou Embalagem), pelo menos um Item deve ser inserido.
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-3 text-right">
+                                      <label for="item">Item:</label>
+                                    </div>
+                                    <div class="col-sm-8">
+                                      <input ng-class="erro"  type="text" class="form-control  border-left-primary" id="item" ng-model="item">
+                                    </div>
+                                    <div class="col-sm-1" style="margin-left: -20px;">
+                                      <a href="#" ng-click="addItem()" id="btnAddItem" class="btn btn-primary btn-icon-split">
+                                        <span class="icon text-white" style="color: #FFFFFF;height: 27px;width: 34px;">
+                                          <i class="fas fa-download"></i>
+                                        </span>
+                                      </a>
+                                    </div>                                    
+                                </div>
+                                <!-- DataTales Example -->
+                                <div class="form-group row" id="divTableItens">
+                                  <div class="col-sm-3 text-right">
+                                    <label for="#">#</label>
+                                  </div>                                  
+                                  <div class="col-sm-9">
+                                    <div class="card shadow mb-4">
+                                      <div class="card-header py-1">
+                                        <h6 class="m-0 font-weight-bold">Itens Inseridos:</h6>
+                                        <div ng-if="erroitemjainserido" class="alert alert-danger">
+                                            Item j&aacute; inserido.
+                                          </div>
+                                      </div>                                      
+                                      <div class="card-body" style="padding: 0.1rem">                                        
+                                        <div class="table-responsive">
+                                          <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0"
+                                          style="font-size: 0.7rem;">
+                                            <thead>
+                                              <tr>
+                                                <!--th style="width: 100%;">C&oacute;digo</th-->
+                                                <th colspan="2">Descri&ccedil;&atilde;o</th>                                            
+                                              </tr>
+                                            </thead>
+                                            
+                                            <tbody>
+                                              
+                                              <tr ng-repeat="x in itensmanifestacao | orderBy:x.item">
+                                                <!--td>{{ x.it_codigo }}</td-->
+                                                <td>{{ x.it_codigo }}-{{ x.item }}</td>                                          
+                                                <td style="width: 12px;">
+                                                  <a href="#" ng-click="eliminaritempedido(x)" id="btnDelItem" class="btn btn-icon-split">
+                                                    <span  class="fas fa-trash"></span> 
+                                                  </a>                                                   
+                                                </td>
+                                              </tr>
+
+                                            </tbody>
+                                          </table>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <hr/>                              
+                                <div class="form-group row">
+                                    <div class="col-sm-3 text-right">
+                                      <label for="ocorrencia">Ocorr&ecirc;ncia<label style="color:#FF0000">*</label>:</label>
+                                    </div>                                  
+                                    <div class="col-sm-9">                                    
+                                      <textarea class="form-control border-left-primary" id="ocorrencia" required name="ocorrencia" ng-model="ocorrencia" placeholder="Ocorr&ecirc;ncia consumidor..." rows="15" maxlength="1500"></textarea>
+                                    </div> 
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-3 text-right">
+                                      <label for="resposta">Resposta<label style="color:#FF0000">*</label>:</label>
+                                    </div>                                  
+                                    <div class="col-sm-9">                                    
+                                      <textarea class="form-control border-left-primary" id="resposta" required placeholder="Resposta Imediata..." name="resposta" ng-model="resposta" rows="15" maxlength="1500"></textarea>
+                                    </div> 
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-3 text-right">
+                                      <label for="investigacao">Investiga&ccedil;&atilde;o:</label>
+                                    </div>                                  
+                                    <div class="col-sm-9">                                    
+                                      <textarea class="form-control border-left-primary" id="investigacao" name="investigacao" ng-model="investigacao" rows="15" maxlength="1500"></textarea>
+                                    </div> 
+                                </div>
+                                <hr/>
+                                <div class="container">
+                                    <div class="row">
+                                      
+                                       <div class="col-md-12">
+                                                
+                                          <div class="form-group files color">
+                                              <label>Anexos: </label>
+                                              <input type="file" name="file" id="file" ng-model="file" class="form-control" multiple="">                                                                                          
+                                          </div>
+                                          <div class="row">
+                                            <div class="col-md-6" id='file-list-display-right'></div>
+                                            <div class="col-md-6" id='file-list-display-left'></div>
+                                          </div>                                          
+                                      </div>
+                                    </div>
+                                </div>     
+                                <hr/>
+
+                                
+                                <button class="btn btn-lg btn-primary btn-block" id="btnGravar" ng-click="salvarmanifestacaoform()">Gravar</button>
+                                <button class="btn btn-lg btn-secondary btn-block" data-toggle="modal" data-target="#confirmacancelModal" >Cancelar</button>
+                                <button class="btn btn-lg btn-success btn-block" ng-click="salvarmanifestacaoform('finaliza');prefinalizamanifestacao();">Finalizar</button>
+                                
+                            </form>											
+                        </div>
+                        <div class="card-body">
+                                       
+                            <div class="table-responsive">
+                              <table class="table table-bordered" id="myTable" width="100%" cellspacing="0">                          
+                              </table>
+                            </div>
+                          
+                        </div>
+                    </div>
+                </div> 				
+            </div>
+          </div>
+          <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+      <% {view/layout/html_copyright.i} %>
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+
+  <!-- Logout Modal-->
+   <div class="modal fade" data-backdrop="static"   id="confirmacancelModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+     <div class="modal-dialog" role="document">
+       <div class="modal-content">
+         <div class="modal-header">
+           <h5 class="modal-title" id="exampleModalLabel">Deseja cancelar?</h5>
+           <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+             <span aria-hidden="true">x</span>
+           </button>
+        </div>
+         <div class="modal-body">Selecione "Sim" abaixo se deseja cancelar o cadastro desta manifesta&ccedil;&atilde;o. Ap&oacute;s cancelamento todos os seus dados digitados nessa manifesta&ccedil;&atilde;o ser&atilde;o perdidos.</div>
+         <div class="modal-footer">
+           <button class="btn btn-secondary" type="button" data-dismiss="modal">N&atilde;o</button>
+           <a class="btn btn-primary" href="#" ng-click="limparmanifestacaoform()" >Sim</a>
+         </div>
+       </div>
+     </div>
+   </div>
+
+   <!-- prefinalizamanifestacaoModal Modal-->
+   <div class="modal fade" data-backdrop="static"   id="prefinalizamanifestacaoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Deseja realmente finalizar sua manifesta&ccedil;&atilde;o?</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">x</span>
+          </button>
+       </div>
+        <div class="modal-body">Selecione "Sim" abaixo caso se deseje finalizar sua manifesta&ccedil;&atilde;o. Ap&oacute;s finalizar, os dados dessa manifesta&ccedil;&atilde;o ser&atilde;o enviados aos respons&aacute;veis.</div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">N&atilde;o</button>
+          <a class="btn btn-primary" href="#" ng-click="finalizamanifestacao()" >Sim</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Finalização Modal-->
+  <div class="modal fade" data-backdrop="static"   id="finalizamanifestacaoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">{{mensagemmodal}}</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">x</span>
+          </button>
+       </div>
+        <div class="modal-body">{{nummanifestacaosistema}}</div>
+        <div class="modal-footer">
+          <a class="btn btn-secondary" href="new-manifestacao">Nova Manifesta&ccedil;&atilde;o</a>
+          <a class="btn btn-primary" href="home">Home</a>
+        </div>
+      </div>
+    </div>
+   </div>
+
+   <!-- Finaliza��oo Modal-->
+   <div class="modal fade" data-backdrop="static"   id="errofinalizamanifestacaoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">{{mensagemmodal}}</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">x</span>
+          </button>
+       </div>
+        <div class="modal-body">{{nummanifestacaosistema}}</div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">OK</button>
+        </div>
+      </div>
+    </div>
+   </div>
+
+   <!-- Gravando Modal-->
+   <div class="modal fade" data-backdrop="static"   id="gravandoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Aguarde...</h5>
+       </div>
+        <div class="modal-body">{{mensagemmodal}}</div>
+      </div>
+    </div>
+   </div>
+
+  <% {view/layout/html_logoutmodal.i} %>
+
+  <% {view/layout/html_footer_manifestacao.i} %>
+
+</body>
+</html>

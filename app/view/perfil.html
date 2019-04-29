@@ -1,0 +1,184 @@
+<%
+{include/config.i}
+{include/seguranca.i "GET|POST"}
+{include/contenttype.i "text/html;charset=UTF-8"}
+{include/app.i}
+
+/**
+ * 
+ * ---------------
+ *
+ *  - Portal de Solicitacoes
+ *
+ * Autor: carloseloi.prado@gmail.com
+ */
+
+IF app_config.habilita_log THEN DO:
+	MESSAGE retorna_cabecalho_mensagem_log(APPPROGRAM).
+	MESSAGE "|Atual.........: " get-value("senhaAtual").
+	MESSAGE "|Nova..........: " get-value("novaSenha").
+	MESSAGE retorna_rodape_mensagem_log(APPPROGRAM).
+END.
+
+IF request_method = "POST" THEN DO:
+
+	DEF VAR c-senhaAtual AS CHAR.
+  DEF VAR c-novaSenha  AS CHAR.
+	DEF VAR i-msg-redireciona AS INT INIT 1 /* N�o foi possivel modificar senha */.
+	DEF VAR c-redirect				AS CHAR INIT 'perfil'.
+    
+    
+	ASSIGN c-senhaAtual = BASE64-ENCODE(SHA1-DIGEST(lc(cpc(get-value("senhaAtual")))))
+         c-novaSenha  = BASE64-ENCODE(SHA1-DIGEST(lc(cpc(get-value("novaSenha"))))).
+
+	FOR EACH  usuar_mestre exclusive-lock
+		WHERE  usuar_mestre.cod_usuario = usuarioCorrente
+		AND    usuar_mestre.cod_senha   = c-senhaAtual:
+	   
+       
+	   /** Totvs11 */
+     assign usuar_mestre.cod_senha           = c-novaSenha
+	          usuar_mestre.cod_senha_framework  = usuar_mestre.cod_senha
+	   	      usuar_mestre.dat_valid_senha      = today + usuar_mestre.num_dias_valid_senha
+			  		usuar_mestre.dat_fim_valid				= today + usuar_mestre.num_dias_valid_senha
+						i-msg-redireciona                 = 5 /* Senha modificada com sucesso! */ 
+						c-redirect												= 'login'.
+	END.
+    
+  RUN pi-redireciona(INPUT c-redirect, i-msg-redireciona  ).
+  STOP.
+
+END.
+ELSE DO:
+
+	FIND FIRST usuar_mestre WHERE usuar_mestre.cod_usuario = usuarioCorrente NO-LOCK NO-ERROR.
+
+END.
+
+%>
+
+<!DOCTYPE html>
+<html>
+
+<% {view/layout/html_head.i} %>
+
+<body id="page-top">
+
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    <% {view/layout/html_menu.i} %>
+
+    <!-- Begin Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <% {view/layout/html_topbar.i} %>
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+  
+            <!-- Content Row -->
+  
+            <div class="row">
+
+							<!-- Area Chart -->
+              <div class="col-xl-12 col-lg-10 col-md-10">								
+								<% IF get-value("status") = encode("1") THEN DO: %>					
+									<div class="col-md-12" id="mensagem">
+										<div class="alert alert-danger"> N&atilde;o foi possivel modificar a senha, pois a senha atual informada n&atilde;o coindice com a sua senha registrada no sistema. </div>
+									</div>					
+								<% END. %>								
+								<% ELSE DO: %>				
+									<div class="col-md-12" id="mensagem">
+											<div id="mensagemShow"></div>
+									</div>				
+								<% END. %>
+								<div class="card shadow mb-4">
+									<!-- Card Header - Dropdown -->
+									<div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+										<h6 class="m-0 font-weight-bold text-primary">Informa&ccedil;&otilde;es do Usu&aacute;rio:</h6>											
+									</div>
+									<!-- Card Body -->
+									<div class="card-body">                    
+										<div class="text-left">
+											<div class="input-group col-md-10">
+													<div class="col-lg-2 col-md-6 text-right"><strong>Usu&aacute;rio: </strong></div>
+													<div class="col-md-6 text-left"><%=usuar_mestre.cod_usuario%></div>
+											</div>													
+										</div>
+										<div class="text-left">
+											<div class="input-group col-md-10">
+													<div class="col-lg-2 col-md-6 text-right"><strong>Nome: </strong></div>
+													<div class="col-md-6 text-left"><%=cpc-out(cpc-in(usuar_mestre.nom_usuario))%></div>
+											</div>
+										</div>
+										<div class="text-left">
+											<div class="input-group col-md-10">
+													<div class="col-lg-2 col-md-6 text-right"><strong>E-mail: </strong></div>
+													<div class="col-md-6 text-left"><%=usuar_mestre.cod_e_mail_local%></div>
+											</div>
+										</div>										
+										<hr/>
+										<form class="user" id="formTrocaSenha" name="formTrocaSenha" action="perfil"  method="POST">
+											<div class="form-group text-center">
+												<label for="usuario">Usu&aacute;rio:</label>
+												<input type="text" class="form-control border-left-primary" name="usuario" id="usuario" placeholder="Usuario" value="<%=usuar_mestre.cod_usuario%>" readonly="true">
+											</div>
+											<div class="form-group text-center">
+												<label for="usuario">Senha atual:</label>
+												<input type="password" class="form-control border-left-primary" name="senhaAtual" id="senhaAtual" placeholder="senhaAtual">
+											</div>
+											<div class="form-group text-center">
+												<label for="usuario">Nova senha:</label>
+												<input type="password" class="form-control border-left-primary" name="novaSenha" id="novaSenha" placeholder="novaSenha">
+											</div>
+											<div class="form-group text-center">
+												<label for="usuario">Repita nova senha:</label>
+												<input type="password" class="form-control border-left-primary" name="novaSenhaConfirma" id="novaSenhaConfirma" placeholder="novaSenhaConfirma">
+											</div>
+											<button class="btn btn-lg btn-primary btn-block" type="submit">Alterar senha</button>
+										</form>											
+									</div>
+									
+								</div>
+							</div> 
+				
+            </div>
+          </div>
+          <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+      <% {view/layout/html_copyright.i} %>
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+  
+  <% {view/layout/html_logoutmodal.i} %>
+
+  <% {view/layout/html_footer.i} %>    
+	<script>
+			$(document).ready(function(){
+				$("#novaSenhaConfirma").blur(function(){
+					//your validation code, including showing messages and coloring the textbox with red.
+					if ( $("#novaSenhaConfirma").val() != $("#novaSenha").val() ) {
+						$('#mensagemShow').html('Nova senha e confirma&ccedil;&atilde;o de nova senha n&atilde;o s&atilde;o iguais.');
+						$('#mensagemShow').addClass( "alert alert-danger");	
+					}
+					else{
+						$('#mensagemShow').html('');
+						$('#mensagemShow').removeClass( "alert alert-danger");	
+					}
+				});
+				$("#sidebarToggle").click()		
+			});
+		</script>
+</body>
+</html>

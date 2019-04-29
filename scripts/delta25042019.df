@@ -1,0 +1,955 @@
+ADD TABLE "anexo-manifestacao"
+  AREA "dados"
+  DUMP-NAME "anexo-manifestacao"
+
+ADD FIELD "id-anexo-manifestacao" OF "anexo-manifestacao" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Id Anexo"
+  POSITION 2
+  MAX-WIDTH 4
+  COLUMN-LABEL "Id Anexo"
+  ORDER 10
+
+ADD FIELD "id-manifestacao" OF "anexo-manifestacao" AS character 
+  DESCRIPTION "id da manifestaá∆o"
+  FORMAT "x(20)"
+  INITIAL "0"
+  LABEL "Id Manif"
+  POSITION 3
+  MAX-WIDTH 40
+  COLUMN-LABEL "Id Manif"
+  ORDER 20
+
+ADD FIELD "path-anexo" OF "anexo-manifestacao" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  LABEL "Path"
+  POSITION 4
+  MAX-WIDTH 100
+  COLUMN-LABEL "Path"
+  ORDER 30
+
+ADD INDEX "idx-pu" ON "anexo-manifestacao" 
+  AREA "indices"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "id-anexo-manifestacao" ASCENDING 
+  INDEX-FIELD "id-manifestacao" ASCENDING 
+
+ADD TABLE "email-manifestacao"
+  AREA "dados"
+  DUMP-NAME "email-manifestacao"
+
+ADD FIELD "id-email-manifestacao" OF "email-manifestacao" AS integer 
+  FORMAT ">>>,>>>,>>9"
+  INITIAL "0"
+  LABEL "Id Email"
+  POSITION 2
+  MAX-WIDTH 4
+  COLUMN-LABEL "Id Email"
+  ORDER 10
+
+ADD FIELD "id-manifestacao" OF "email-manifestacao" AS character 
+  DESCRIPTION "id da manifestaá∆o"
+  FORMAT "x(20)"
+  INITIAL "0"
+  LABEL "Id Manif"
+  POSITION 3
+  MAX-WIDTH 40
+  COLUMN-LABEL "Id Manif"
+  ORDER 20
+
+ADD FIELD "id-tar-manifestacao" OF "email-manifestacao" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Id Tarefa"
+  POSITION 4
+  MAX-WIDTH 4
+  COLUMN-LABEL "Id Tarefa"
+  ORDER 30
+
+ADD FIELD "ds-body-email" OF "email-manifestacao" AS character 
+  FORMAT "x(3200)"
+  INITIAL ""
+  LABEL "EMail"
+  POSITION 5
+  MAX-WIDTH 6400
+  COLUMN-LABEL "EMail"
+  ORDER 40
+
+ADD FIELD "status-envio" OF "email-manifestacao" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Status Envio"
+  POSITION 6
+  MAX-WIDTH 40
+  COLUMN-LABEL "Status Envio"
+  ORDER 50
+
+ADD FIELD "dt-envio" OF "email-manifestacao" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Dt Envio"
+  POSITION 7
+  MAX-WIDTH 4
+  COLUMN-LABEL "Dt Envio"
+  ORDER 60
+
+ADD FIELD "hr-envio" OF "email-manifestacao" AS integer 
+  FORMAT ">>>,>>>,>>9"
+  INITIAL "0"
+  LABEL "Hr Envio"
+  POSITION 8
+  MAX-WIDTH 4
+  COLUMN-LABEL "Hr Envio"
+  ORDER 70
+
+ADD INDEX "idx-pu" ON "email-manifestacao" 
+  AREA "indices"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "id-email-manifestacao" ASCENDING 
+  INDEX-FIELD "id-manifestacao" ASCENDING 
+  INDEX-FIELD "id-tar-manifestacao" ASCENDING 
+
+ADD TABLE "hist-manifestacao"
+  AREA "dados"
+  DUMP-NAME "hist-manifestacao"
+
+ADD FIELD "id-hist-manifestacao" OF "hist-manifestacao" AS integer 
+  FORMAT ">>>,>>>,>>9"
+  INITIAL "0"
+  LABEL "Id Historico"
+  POSITION 2
+  MAX-WIDTH 4
+  COLUMN-LABEL "Id Historico"
+  ORDER 10
+
+ADD FIELD "id-manifestacao" OF "hist-manifestacao" AS character 
+  DESCRIPTION "id da manifestaá∆o"
+  FORMAT "x(20)"
+  INITIAL "0"
+  LABEL "Id Manif"
+  POSITION 3
+  MAX-WIDTH 40
+  COLUMN-LABEL "Id Manif"
+  ORDER 20
+
+ADD FIELD "dt-cadastro" OF "hist-manifestacao" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Dt Cadastro"
+  POSITION 4
+  MAX-WIDTH 4
+  COLUMN-LABEL "Dt Cadastro"
+  ORDER 30
+
+ADD FIELD "hr-cadastro" OF "hist-manifestacao" AS integer 
+  FORMAT ">>>,>>>,>>9"
+  INITIAL "0"
+  LABEL "Hr Cadastro"
+  POSITION 5
+  MAX-WIDTH 4
+  COLUMN-LABEL "Hr Cadastro"
+  ORDER 40
+
+ADD FIELD "ds-status" OF "hist-manifestacao" AS character 
+  FORMAT "x(25)"
+  INITIAL ""
+  LABEL "Dsc Staus"
+  POSITION 6
+  MAX-WIDTH 50
+  COLUMN-LABEL "Dsc Status"
+  ORDER 50
+
+ADD FIELD "ds-parecer" OF "hist-manifestacao" AS character 
+  FORMAT "x(2000)"
+  INITIAL ""
+  LABEL "Parecer"
+  POSITION 7
+  MAX-WIDTH 1000
+  COLUMN-LABEL "Parecer"
+  ORDER 60
+
+ADD FIELD "cod-usuar" OF "hist-manifestacao" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Cod usuar"
+  POSITION 8
+  MAX-WIDTH 40
+  COLUMN-LABEL "Cod usuar"
+  ORDER 70
+
+ADD FIELD "cod-grp-usuar" OF "hist-manifestacao" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Cod Grupo"
+  POSITION 9
+  MAX-WIDTH 24
+  COLUMN-LABEL "Cod Grupo"
+  ORDER 80
+
+ADD FIELD "conclusao-parecer" OF "hist-manifestacao" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "Conclus∆o"
+  POSITION 10
+  MAX-WIDTH 30
+  COLUMN-LABEL "Conclus∆o"
+  ORDER 90
+
+ADD FIELD "cod-usuar-corrente" OF "hist-manifestacao" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Usu†rio Corrente"
+  POSITION 11
+  MAX-WIDTH 40
+  COLUMN-LABEL "Usu†rio Corrente"
+  ORDER 100
+
+ADD INDEX "idx-pu" ON "hist-manifestacao" 
+  AREA "indices"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "id-hist-manifestacao" ASCENDING 
+  INDEX-FIELD "id-manifestacao" ASCENDING 
+
+ADD INDEX "idx-dt-cad" ON "hist-manifestacao" 
+  AREA "indices"
+  INDEX-FIELD "dt-cadastro" ASCENDING 
+
+ADD INDEX "idx-grp" ON "hist-manifestacao" 
+  AREA "indices"
+  INDEX-FIELD "cod-grp-usuar" ASCENDING 
+
+ADD INDEX "idx-sta" ON "hist-manifestacao" 
+  AREA "indices"
+  INDEX-FIELD "ds-status" ASCENDING 
+
+ADD INDEX "idx-usu" ON "hist-manifestacao" 
+  AREA "indices"
+  INDEX-FIELD "cod-usuar" ASCENDING 
+
+ADD TABLE "item-manifestacao"
+  AREA "dados"
+  DESCRIPTION "Amaraá∆o entre o cadastro de itens ERP items selecionados em uma manifestaá∆o e  amanifestaá∆o"
+  DUMP-NAME "item-manifestacao"
+
+ADD FIELD "id-manifestacao" OF "item-manifestacao" AS character 
+  DESCRIPTION "id da manifestaá∆o"
+  FORMAT "x(20)"
+  INITIAL "0"
+  LABEL "Id Manif"
+  POSITION 2
+  MAX-WIDTH 40
+  COLUMN-LABEL "Id Manif"
+  ORDER 10
+
+ADD FIELD "it-codigo" OF "item-manifestacao" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "It C¢digo"
+  POSITION 3
+  MAX-WIDTH 24
+  COLUMN-LABEL "It C¢digo"
+  ORDER 20
+
+ADD FIELD "ds-tpo-item" OF "item-manifestacao" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Ds Tpo Item"
+  POSITION 4
+  MAX-WIDTH 60
+  COLUMN-LABEL "Ds Tpo Item"
+  ORDER 30
+
+ADD INDEX "idx-pju" ON "item-manifestacao" 
+  AREA "indices"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "id-manifestacao" ASCENDING 
+  INDEX-FIELD "it-codigo" ASCENDING 
+
+ADD TABLE "item-portal-manifestacao-form"
+  AREA "dados"
+  DESCRIPTION "Amaraá∆o entre o cadastro de itens ERP items selecionados em uma manifestaá∆o e  amanifestaá∆o"
+  DUMP-NAME "item-portal-manifestacao-form"
+
+ADD FIELD "cod-usu-corrente" OF "item-portal-manifestacao-form" AS character 
+  FORMAT "x(20)"
+  INITIAL "0"
+  LABEL ""
+  POSITION 2
+  MAX-WIDTH 40
+  COLUMN-LABEL ""
+  ORDER 10
+
+ADD FIELD "it-codigo" OF "item-portal-manifestacao-form" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "It C¢digo"
+  POSITION 3
+  MAX-WIDTH 24
+  COLUMN-LABEL "It C¢digo"
+  ORDER 20
+
+ADD FIELD "ds-tpo-item" OF "item-portal-manifestacao-form" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Ds Tpo Item"
+  POSITION 4
+  MAX-WIDTH 60
+  COLUMN-LABEL "Ds Tpo Item"
+  ORDER 30
+
+ADD TABLE "manifestacao"
+  AREA "dados"
+  DESCRIPTION "Gravar as manifestaáoes de clientes no sac"
+  DUMP-NAME "manifestacao"
+
+ADD FIELD "id-manifestacao" OF "manifestacao" AS character 
+  DESCRIPTION "id da manifestaá∆o"
+  FORMAT "x(20)"
+  INITIAL "0"
+  LABEL "Id Manif"
+  POSITION 2
+  MAX-WIDTH 40
+  COLUMN-LABEL "Id Manif"
+  ORDER 10
+
+ADD FIELD "dt-cadastro" OF "manifestacao" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Dt Cadastro"
+  POSITION 3
+  MAX-WIDTH 4
+  COLUMN-LABEL "Dt Cadastro"
+  ORDER 20
+
+ADD FIELD "hr-cadastro" OF "manifestacao" AS integer 
+  FORMAT ">>>,>>>,>>9"
+  INITIAL "0"
+  LABEL "Hr Cadastro"
+  POSITION 4
+  MAX-WIDTH 4
+  COLUMN-LABEL "Hr Cadastro"
+  ORDER 30
+
+ADD FIELD "cd-status" OF "manifestacao" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Cd Status"
+  POSITION 5
+  MAX-WIDTH 4
+  COLUMN-LABEL "Cd Status"
+  ORDER 40
+
+ADD FIELD "nr-protocolo" OF "manifestacao" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Protocolo"
+  POSITION 6
+  MAX-WIDTH 40
+  COLUMN-LABEL "Protocolo"
+  ORDER 50
+
+ADD FIELD "origem" OF "manifestacao" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Origem"
+  POSITION 7
+  MAX-WIDTH 60
+  COLUMN-LABEL "Origem"
+  ORDER 60
+
+ADD FIELD "nr-telefone" OF "manifestacao" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Nr Telefone"
+  POSITION 8
+  MAX-WIDTH 40
+  COLUMN-LABEL "Nr Telefone"
+  ORDER 70
+
+ADD FIELD "nm-cliente" OF "manifestacao" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Nome Cliente"
+  POSITION 9
+  MAX-WIDTH 160
+  COLUMN-LABEL "Nome Cliente"
+  ORDER 80
+
+ADD FIELD "nr-cpf" OF "manifestacao" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "CPF"
+  POSITION 10
+  MAX-WIDTH 30
+  COLUMN-LABEL "CPF"
+  ORDER 90
+
+ADD FIELD "cep" OF "manifestacao" AS character 
+  FORMAT "x(11)"
+  INITIAL ""
+  LABEL "CEP"
+  POSITION 11
+  MAX-WIDTH 22
+  COLUMN-LABEL "CEP"
+  ORDER 100
+
+ADD FIELD "ds-logradouro" OF "manifestacao" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Logradouro"
+  POSITION 12
+  MAX-WIDTH 160
+  COLUMN-LABEL "Logradouro"
+  ORDER 110
+
+ADD FIELD "nr-logradouro" OF "manifestacao" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Nr Logradouro"
+  POSITION 13
+  MAX-WIDTH 16
+  COLUMN-LABEL "Nr Logradouro"
+  ORDER 120
+
+ADD FIELD "complemento" OF "manifestacao" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Complemento"
+  POSITION 14
+  MAX-WIDTH 60
+  COLUMN-LABEL "Complemento"
+  ORDER 130
+
+ADD FIELD "cd-uf" OF "manifestacao" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "UF"
+  POSITION 15
+  MAX-WIDTH 6
+  COLUMN-LABEL "UF"
+  ORDER 140
+
+ADD FIELD "cidade" OF "manifestacao" AS character 
+  FORMAT "x(35)"
+  INITIAL ""
+  LABEL "Cidade"
+  POSITION 16
+  MAX-WIDTH 70
+  COLUMN-LABEL "Cidade"
+  ORDER 150
+
+ADD FIELD "bairro" OF "manifestacao" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Bairro"
+  POSITION 17
+  MAX-WIDTH 60
+  COLUMN-LABEL "Bairro"
+  ORDER 160
+
+ADD FIELD "ds-tpo-manifestacao" OF "manifestacao" AS character 
+  DESCRIPTION "Elogio, Informaá∆o, Sugest∆o, Reclamaá∆o, Solicitaá∆o
+"
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 18
+  MAX-WIDTH 16
+  ORDER 170
+
+ADD FIELD "ds-ocorrencia" OF "manifestacao" AS character 
+  FORMAT "x(2000)"
+  INITIAL ""
+  LABEL "Dsc Ocorrància"
+  POSITION 19
+  MAX-WIDTH 1000
+  COLUMN-LABEL "Dsc Ocorrànvcia"
+  ORDER 180
+
+ADD FIELD "ds-resp-imediata" OF "manifestacao" AS character 
+  FORMAT "x(2000)"
+  INITIAL ""
+  LABEL "Resp Imediata"
+  POSITION 20
+  MAX-WIDTH 1000
+  COLUMN-LABEL "Resp Imediata"
+  ORDER 190
+
+ADD FIELD "ds-investigacao" OF "manifestacao" AS character 
+  FORMAT "x(2000)"
+  INITIAL ""
+  LABEL "Investigaá∆o"
+  POSITION 21
+  MAX-WIDTH 1000
+  COLUMN-LABEL "Investigaá∆o"
+  ORDER 200
+
+ADD FIELD "cod-usu-cadastro" OF "manifestacao" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Usu Cadastro"
+  POSITION 22
+  MAX-WIDTH 40
+  COLUMN-LABEL "usu Cadastro"
+  ORDER 210
+
+ADD FIELD "cod-usuar" OF "manifestacao" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Cod usuar"
+  POSITION 23
+  MAX-WIDTH 40
+  COLUMN-LABEL "Cod usuar"
+  ORDER 220
+
+ADD FIELD "cod-grp-usuar" OF "manifestacao" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Cod Grupo"
+  POSITION 24
+  MAX-WIDTH 24
+  COLUMN-LABEL "Cod Grupo"
+  ORDER 230
+
+ADD FIELD "email-contato" OF "manifestacao" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  LABEL "Email"
+  POSITION 25
+  MAX-WIDTH 100
+  COLUMN-LABEL "Email"
+  ORDER 240
+
+ADD FIELD "conclusao-parecer" OF "manifestacao" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "Conclus∆o"
+  POSITION 26
+  MAX-WIDTH 30
+  COLUMN-LABEL "Conclus∆o"
+  ORDER 250
+
+ADD INDEX "idx-pu" ON "manifestacao" 
+  AREA "indices"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "id-manifestacao" ASCENDING 
+
+ADD INDEX "idx-cpf" ON "manifestacao" 
+  AREA "indices"
+  INDEX-FIELD "nr-cpf" ASCENDING 
+
+ADD INDEX "idx-dt-cad" ON "manifestacao" 
+  AREA "indices"
+  INDEX-FIELD "dt-cadastro" ASCENDING 
+
+ADD INDEX "idx-grp" ON "manifestacao" 
+  AREA "indices"
+  INDEX-FIELD "cod-grp-usuar" ASCENDING 
+
+ADD INDEX "idx-protocol" ON "manifestacao" 
+  AREA "indices"
+  INDEX-FIELD "nr-protocolo" ASCENDING 
+
+ADD INDEX "idx-sta" ON "manifestacao" 
+  AREA "indices"
+  INDEX-FIELD "cd-status" ASCENDING 
+
+ADD INDEX "idx-sta-usuar" ON "manifestacao" 
+  AREA "dados"
+  INDEX-FIELD "cd-status" ASCENDING 
+  INDEX-FIELD "cod-usuar" ASCENDING 
+
+ADD INDEX "idx-usuar" ON "manifestacao" 
+  AREA "indices"
+  INDEX-FIELD "cod-usuar" ASCENDING 
+
+ADD TABLE "portal-anexo-manifestacao-form"
+  AREA "dados"
+  DESCRIPTION "dados dos anexos inserido na manifestacao antes de fnalizada"
+  DUMP-NAME "portal-anexo-manifestacao-form"
+
+ADD FIELD "cod-usu-corrente" OF "portal-anexo-manifestacao-form" AS character 
+  FORMAT "x(20)"
+  INITIAL "0"
+  LABEL ""
+  POSITION 2
+  MAX-WIDTH 40
+  COLUMN-LABEL ""
+  ORDER 10
+
+ADD FIELD "token" OF "portal-anexo-manifestacao-form" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  LABEL "Token"
+  POSITION 3
+  MAX-WIDTH 100
+  COLUMN-LABEL "Token"
+  ORDER 20
+
+ADD FIELD "path-anexo" OF "portal-anexo-manifestacao-form" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  LABEL "Path"
+  POSITION 4
+  MAX-WIDTH 100
+  COLUMN-LABEL "Path"
+  ORDER 30
+
+ADD TABLE "portal-manifestacao-form"
+  AREA "dados"
+  DESCRIPTION "Gravar as manifestaáoes de clientes no sac"
+  DUMP-NAME "portal-manifestacao-form"
+
+ADD FIELD "cod-usu-corrente" OF "portal-manifestacao-form" AS character 
+  FORMAT "x(20)"
+  INITIAL "0"
+  LABEL ""
+  POSITION 2
+  MAX-WIDTH 40
+  COLUMN-LABEL ""
+  ORDER 10
+
+ADD FIELD "nr-protocolo" OF "portal-manifestacao-form" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Protocolo"
+  POSITION 3
+  MAX-WIDTH 40
+  COLUMN-LABEL "Protocolo"
+  ORDER 50
+
+ADD FIELD "origem" OF "portal-manifestacao-form" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Origem"
+  POSITION 4
+  MAX-WIDTH 60
+  COLUMN-LABEL "Origem"
+  ORDER 60
+
+ADD FIELD "nr-telefone" OF "portal-manifestacao-form" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Nr Telefone"
+  POSITION 5
+  MAX-WIDTH 40
+  COLUMN-LABEL "Nr Telefone"
+  ORDER 71
+
+ADD FIELD "nm-cliente" OF "portal-manifestacao-form" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Nome Cliente"
+  POSITION 6
+  MAX-WIDTH 160
+  COLUMN-LABEL "Nome Cliente"
+  ORDER 80
+
+ADD FIELD "cep" OF "portal-manifestacao-form" AS character 
+  FORMAT "x(11)"
+  INITIAL ""
+  LABEL "CEP"
+  POSITION 7
+  MAX-WIDTH 22
+  COLUMN-LABEL "CEP"
+  ORDER 100
+
+ADD FIELD "finalizado" OF "portal-manifestacao-form" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 8
+  MAX-WIDTH 1
+  ORDER 70
+
+ADD FIELD "nr-logradouro" OF "portal-manifestacao-form" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Nr Logradouro"
+  POSITION 9
+  MAX-WIDTH 16
+  COLUMN-LABEL "Nr Logradouro"
+  ORDER 120
+
+ADD FIELD "complemento" OF "portal-manifestacao-form" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Complemento"
+  POSITION 10
+  MAX-WIDTH 60
+  COLUMN-LABEL "Complemento"
+  ORDER 130
+
+ADD FIELD "cd-uf" OF "portal-manifestacao-form" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "UF"
+  POSITION 11
+  MAX-WIDTH 6
+  COLUMN-LABEL "UF"
+  ORDER 140
+
+ADD FIELD "cidade" OF "portal-manifestacao-form" AS character 
+  FORMAT "x(35)"
+  INITIAL ""
+  LABEL "Cidade"
+  POSITION 12
+  MAX-WIDTH 70
+  COLUMN-LABEL "Cidade"
+  ORDER 150
+
+ADD FIELD "bairro" OF "portal-manifestacao-form" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Bairro"
+  POSITION 13
+  MAX-WIDTH 60
+  COLUMN-LABEL "Bairro"
+  ORDER 160
+
+ADD FIELD "ds-tpo-manifestacao" OF "portal-manifestacao-form" AS character 
+  DESCRIPTION "Elogio, Informaá∆o, Sugest∆o, Reclamaá∆o, Solicitaá∆o
+"
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 14
+  MAX-WIDTH 16
+  ORDER 170
+
+ADD FIELD "ds-ocorrencia" OF "portal-manifestacao-form" AS character 
+  FORMAT "x(500)"
+  INITIAL ""
+  LABEL "Dsc Ocorrància"
+  POSITION 15
+  MAX-WIDTH 1000
+  COLUMN-LABEL "Dsc Ocorrànvcia"
+  ORDER 180
+
+ADD FIELD "ds-resp-imediata" OF "portal-manifestacao-form" AS character 
+  FORMAT "x(500)"
+  INITIAL ""
+  LABEL "Resp Imediata"
+  POSITION 16
+  MAX-WIDTH 1000
+  COLUMN-LABEL "Resp Imediata"
+  ORDER 190
+
+ADD FIELD "ds-investigacao" OF "portal-manifestacao-form" AS character 
+  FORMAT "x(500)"
+  INITIAL ""
+  LABEL "Investigaá∆o"
+  POSITION 17
+  MAX-WIDTH 1000
+  COLUMN-LABEL "Investigaá∆o"
+  ORDER 200
+
+ADD FIELD "ds-logradouro" OF "portal-manifestacao-form" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "Logradouro"
+  POSITION 18
+  MAX-WIDTH 160
+  COLUMN-LABEL "Logradouro"
+  ORDER 110
+
+ADD FIELD "ds-tp-tpo-manifestacao" OF "portal-manifestacao-form" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Tpo Item"
+  POSITION 19
+  MAX-WIDTH 40
+  COLUMN-LABEL "Tpo Item"
+  ORDER 210
+
+ADD TABLE "status-manifestacao"
+  AREA "dados"
+  DUMP-NAME "status-manifestacao"
+
+ADD FIELD "id-status" OF "status-manifestacao" AS integer 
+  FORMAT ">>>,>>>,>>9"
+  INITIAL "0"
+  LABEL "Id Status"
+  POSITION 2
+  MAX-WIDTH 4
+  COLUMN-LABEL "Id Status"
+  ORDER 10
+
+ADD FIELD "ds-status" OF "status-manifestacao" AS character 
+  FORMAT "x(35)"
+  INITIAL ""
+  LABEL "Dsc Status"
+  POSITION 3
+  MAX-WIDTH 70
+  COLUMN-LABEL "Dsc Status"
+  ORDER 20
+
+ADD INDEX "idx-pu" ON "status-manifestacao" 
+  AREA "indices"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "id-status" ASCENDING 
+
+ADD TABLE "tar-manifestacao"
+  AREA "dados"
+  DUMP-NAME "tar-manifestacao"
+
+ADD FIELD "id-tar-manifestacao" OF "tar-manifestacao" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Id Tarefa"
+  POSITION 2
+  MAX-WIDTH 4
+  COLUMN-LABEL "Id Tarefa"
+  ORDER 10
+
+ADD FIELD "id-manifestacao" OF "tar-manifestacao" AS character 
+  DESCRIPTION "id da manifestaá∆o"
+  FORMAT "x(20)"
+  INITIAL "0"
+  LABEL "Id Manif"
+  POSITION 3
+  MAX-WIDTH 40
+  COLUMN-LABEL "Id Manif"
+  ORDER 20
+
+ADD FIELD "ds-tar-manifestacao" OF "tar-manifestacao" AS character 
+  FORMAT "x(2000)"
+  INITIAL ""
+  LABEL "Dsc Tarefa"
+  POSITION 4
+  MAX-WIDTH 1000
+  COLUMN-LABEL "Dsc Tarefa"
+  ORDER 30
+
+ADD FIELD "dt-cadastro" OF "tar-manifestacao" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Dt Cadastro"
+  POSITION 5
+  MAX-WIDTH 4
+  COLUMN-LABEL "Dt Cadastro"
+  ORDER 40
+
+ADD FIELD "hr-cadastro" OF "tar-manifestacao" AS integer 
+  FORMAT ">>>,>>>,>>9"
+  INITIAL "0"
+  LABEL "Hr Cadastro"
+  POSITION 6
+  MAX-WIDTH 4
+  COLUMN-LABEL "Hr Cadastro"
+  ORDER 50
+
+ADD FIELD "dt-atribuicao" OF "tar-manifestacao" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Dt Atribuicao"
+  POSITION 7
+  MAX-WIDTH 4
+  COLUMN-LABEL "Dt Atribuicao"
+  ORDER 60
+
+ADD FIELD "hr-atribuicao" OF "tar-manifestacao" AS integer 
+  FORMAT ">>>,>>>,>>9"
+  INITIAL "0"
+  LABEL "Hr Atribuicao"
+  POSITION 8
+  MAX-WIDTH 4
+  COLUMN-LABEL "Hr Atribuicao"
+  ORDER 70
+
+ADD FIELD "dt-execucao" OF "tar-manifestacao" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Dt Execucao"
+  POSITION 9
+  MAX-WIDTH 4
+  COLUMN-LABEL "Dt Execucao"
+  ORDER 80
+
+ADD FIELD "hr-execucao" OF "tar-manifestacao" AS integer 
+  FORMAT ">>>,>>>,>>9"
+  INITIAL "0"
+  LABEL "Hr Execucao"
+  POSITION 10
+  MAX-WIDTH 4
+  COLUMN-LABEL "Hr Execucao"
+  ORDER 90
+
+ADD FIELD "ds-status" OF "tar-manifestacao" AS character 
+  FORMAT "x(25)"
+  INITIAL ""
+  LABEL "Dsc Staus"
+  POSITION 11
+  MAX-WIDTH 50
+  COLUMN-LABEL "Dsc Status"
+  ORDER 100
+
+ADD FIELD "cod-usuar" OF "tar-manifestacao" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Cod usuar"
+  POSITION 12
+  MAX-WIDTH 40
+  COLUMN-LABEL "Cod usuar"
+  ORDER 110
+
+ADD FIELD "cod-grp-usuar" OF "tar-manifestacao" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Cod Grupo"
+  POSITION 13
+  MAX-WIDTH 24
+  COLUMN-LABEL "Cod Grupo"
+  ORDER 120
+
+ADD FIELD "conclusao-parecer" OF "tar-manifestacao" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "Conclus∆o"
+  POSITION 14
+  MAX-WIDTH 30
+  COLUMN-LABEL "Conclus∆o"
+  ORDER 130
+
+ADD FIELD "cod-usuar-corrente" OF "tar-manifestacao" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Usu†rio Corrente"
+  POSITION 15
+  MAX-WIDTH 40
+  COLUMN-LABEL "Usu†rio Corrente"
+  ORDER 140
+
+ADD INDEX "idx-pu" ON "tar-manifestacao" 
+  AREA "indices"
+  PRIMARY
+  INDEX-FIELD "id-tar-manifestacao" ASCENDING 
+  INDEX-FIELD "id-manifestacao" ASCENDING 
+
+ADD INDEX "idx-dt-cad" ON "tar-manifestacao" 
+  AREA "indices"
+  INDEX-FIELD "id-tar-manifestacao" ASCENDING 
+  INDEX-FIELD "dt-cadastro" ASCENDING 
+
+ADD INDEX "idx-grp" ON "tar-manifestacao" 
+  AREA "indices"
+  INDEX-FIELD "cod-grp-usuar" ASCENDING 
+
+ADD INDEX "idx-sta" ON "tar-manifestacao" 
+  AREA "indices"
+  INDEX-FIELD "ds-status" ASCENDING 
+
+ADD INDEX "idx-usu" ON "tar-manifestacao" 
+  AREA "indices"
+  INDEX-FIELD "cod-usuar" ASCENDING 
+
+.
+PSC
+cpstream=ibm850
+.
+0000021546

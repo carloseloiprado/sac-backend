@@ -1,0 +1,193 @@
+<%
+{include/contenttype.i "application/json;charset=UTF-8"}
+{include/config.i}
+{include/seguranca.i "GET"}
+{include/app.i}
+
+/**
+ * 
+ * ---------------
+ *
+ *  - Portal de Manifestação de Clientes - SAC
+ *
+ * Autor: carloseloi.prado@gmail.com.
+ */
+
+/** Saida Log */
+IF app_config.habilita_log THEN DO:
+	MESSAGE retorna_cabecalho_mensagem_log(APPPROGRAM).
+  	MESSAGE "|Termo Pesquisa..: " get-value("term").
+	MESSAGE "|tpitem..............: " get-value("ptpitem").
+	MESSAGE retorna_rodape_mensagem_log(APPPROGRAM).
+END.
+
+/** Variaveis */
+DEFINE VARIABLE termo-pesquisa   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE i 				 AS INTEGER   NO-UNDO.
+
+DEFINE VARIABLE c-origem		 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE c-tipo		     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE c-uf		     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dtini            AS DATE      NO-UNDO.
+DEFINE VARIABLE dtfim            AS DATE      NO-UNDO.
+
+/** Temp-table */
+DEFINE TEMP-TABLE ttRetorno NO-UNDO
+    FIELD qtdaberta			 				AS INTEGER
+    FIELD qtdemandamento                    AS INTEGER
+    FIELD qtdpendente                       AS INTEGER
+    FIELD qtdsolucionada                    AS INTEGER
+    FIELD qtdfinalizada                     AS INTEGER
+    FIELD qtdtotal   			 			AS INTEGER
+    .
+
+DEFINE DATASET dsRetorno      FOR ttRetorno.
+
+
+ASSIGN c-origem = get-value("origem")
+       c-tipo   = get-value("tipo") 
+       c-uf     = get-value("uf")
+       dtini    = date(get-value("dtini"))
+       dtfim    = date(get-value("dtfim")).
+
+MESSAGE 'c-origem =' get-value("origem")  skip
+       'c-tipo   =' get-value("tipo")   skip
+       'c-uf     =' get-value("uf")     skip
+       'dtini    =' date(get-value("dtini"))   skip
+       'dtfim    =' date(get-value("dtfim")).
+       
+       
+IF ( c-origem <> 'todos' AND c-tipo <> 'todos' AND c-uf <> 'todos' ) THEN DO:
+   
+    CREATE ttRetorno.
+    FOR EACH manifestacao FIELDS ( cd-status ) NO-LOCK
+      WHERE manifestacao.origem              = get-value("origem")
+        AND manifestacao.ds-tpo-manifestacao = get-value("tipo") 
+        AND manifestacao.cd-uf               = get-value("uf")
+        AND manifestacao.dt-cadastro        >= dtini
+        AND manifestacao.dt-cadastro        <= dtfim:					
+
+        RUN pi-registro-retorno.
+
+    END.
+END.
+ELSE IF ( c-origem = 'todos' AND c-tipo = 'todos' AND c-uf = 'todos' ) THEN DO:
+   
+    CREATE ttRetorno.
+    FOR EACH manifestacao FIELDS ( cd-status ) NO-LOCK
+      WHERE manifestacao.dt-cadastro        >= dtini
+        AND manifestacao.dt-cadastro        <= dtfim:					
+
+        RUN pi-registro-retorno.
+
+    END.
+END.
+ELSE IF ( c-origem <> 'todos' AND c-tipo <> 'todos' AND c-uf = 'todos' ) THEN DO:
+   
+    CREATE ttRetorno.
+    FOR EACH manifestacao FIELDS ( cd-status ) NO-LOCK
+      WHERE manifestacao.origem              = get-value("origem")
+        AND manifestacao.ds-tpo-manifestacao = get-value("tipo") 
+        AND manifestacao.dt-cadastro        >= dtini
+        AND manifestacao.dt-cadastro        <= dtfim:					
+
+        RUN pi-registro-retorno.
+
+    END.
+END.
+ELSE IF ( c-origem <> 'todos' AND c-tipo = 'todos' AND c-uf <> 'todos' ) THEN DO:
+   
+    CREATE ttRetorno.
+    FOR EACH manifestacao FIELDS ( cd-status ) NO-LOCK
+      WHERE manifestacao.origem              = get-value("origem")
+        AND manifestacao.ds-tpo-manifestacao = get-value("tipo") 
+        AND manifestacao.dt-cadastro        >= dtini
+        AND manifestacao.dt-cadastro        <= dtfim:					
+
+        RUN pi-registro-retorno.
+
+    END.
+END.
+ELSE IF ( c-origem = 'todos' AND c-tipo <> 'todos' AND c-uf <> 'todos' ) THEN DO:
+   
+    CREATE ttRetorno.
+    FOR EACH manifestacao FIELDS ( cd-status ) NO-LOCK
+      WHERE manifestacao.origem              = get-value("tipo")
+        AND manifestacao.ds-tpo-manifestacao = get-value("tipo") 
+        AND manifestacao.dt-cadastro        >= dtini
+        AND manifestacao.dt-cadastro        <= dtfim:					
+
+        RUN pi-registro-retorno.
+
+    END.
+END.
+ELSE IF ( c-origem <> 'todos' AND c-tipo = 'todos' AND c-uf = 'todos' ) THEN DO:
+   
+    CREATE ttRetorno.
+    FOR EACH manifestacao FIELDS ( cd-status ) NO-LOCK
+      WHERE manifestacao.origem              = get-value("origem") 
+        AND manifestacao.dt-cadastro        >= dtini
+        AND manifestacao.dt-cadastro        <= dtfim:					
+
+        RUN pi-registro-retorno.
+
+    END.
+END.
+ELSE IF ( c-origem = 'todos' AND c-tipo <> 'todos' AND c-uf = 'todos' ) THEN DO:
+   
+    CREATE ttRetorno.
+    FOR EACH manifestacao FIELDS ( cd-status ) NO-LOCK
+      WHERE manifestacao.ds-tpo-manifestacao = get-value("tipo") 
+        AND manifestacao.dt-cadastro        >= dtini
+        AND manifestacao.dt-cadastro        <= dtfim:					
+
+        RUN pi-registro-retorno.
+
+    END.
+END.
+ELSE IF ( c-origem = 'todos' AND c-tipo = 'todos' AND c-uf <> 'todos' ) THEN DO:
+   
+    CREATE ttRetorno.
+    FOR EACH manifestacao FIELDS ( cd-status ) NO-LOCK
+      WHERE manifestacao.cd-uf               = get-value("uf")
+        AND manifestacao.dt-cadastro        >= dtini
+        AND manifestacao.dt-cadastro        <= dtfim:					
+
+        RUN pi-registro-retorno.
+
+    END.
+END.
+
+
+RUN pi-retorno.
+
+
+/** Retorna Json */
+PROCEDURE pi-retorno:
+
+    DEFINE VARIABLE lRetOK      AS LOGICAL   NO-UNDO.
+   
+   	ASSIGN lRetOK = DATASET dsRetorno:WRITE-JSON("STREAM", "WebStream",NO, "utf-8", ?, TRUE).
+
+END PROCEDURE.
+
+/** Cria registro de retorno */
+PROCEDURE pi-registro-retorno:
+    
+    IF manifestacao.cd-status = 1 THEN
+        ASSIGN ttRetorno.qtdaberta 		= ttRetorno.qtdaberta + 1.
+    ELSE IF manifestacao.cd-status = 2 THEN
+        ASSIGN ttRetorno.qtdemandamento = ttRetorno.qtdemandamento + 1.
+    ELSE IF manifestacao.cd-status = 3 THEN
+        ASSIGN ttRetorno.qtdpendente 	= ttRetorno.qtdpendente + 1.
+    ELSE IF manifestacao.cd-status = 4 THEN
+        ASSIGN ttRetorno.qtdsolucionada = ttRetorno.qtdsolucionada + 1.
+    ELSE IF manifestacao.cd-status = 5 THEN
+        ASSIGN ttRetorno.qtdfinalizada 	= ttRetorno.qtdfinalizada + 1.
+	
+    
+    ASSIGN ttRetorno.qtdtotal = ttRetorno.qtdtotal + 1.
+	
+END PROCEDURE.
+
+%>

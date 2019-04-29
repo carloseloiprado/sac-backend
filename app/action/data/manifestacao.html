@@ -1,0 +1,314 @@
+<%
+{include/contenttype.i "application/json;charset=UTF-8"}
+{include/config.i}
+{include/seguranca.i "GET|POST|PUT|DELETE"}
+{include/app.i}
+
+/**
+ * 
+ * ---------------
+ *
+ *  - Portal de Manifestação de Clientes - SAC
+ *
+ * Autor: carloseloi.prado@gmail.com.
+ */
+
+/** Saida Log */
+IF app_config.habilita_log THEN DO:
+	MESSAGE retorna_cabecalho_mensagem_log(APPPROGRAM).
+  	MESSAGE "|Termo Pesquisa..: " get-value("term").
+	MESSAGE "|tpitem..............: " get-value("ptpitem").
+	MESSAGE retorna_rodape_mensagem_log(APPPROGRAM).
+END.
+
+/** Temp-table */
+DEFINE TEMP-TABLE ttRetorno NO-UNDO
+        FIELD pathanexo         AS CHARACTER
+        FIELD nameanexo         AS CHARACTER
+        FIELD item              AS CHARACTER
+        FIELD protocolo 		AS CHARACTER
+        FIELD origem    		AS CHARACTER
+        FIELD telefone  		AS CHARACTER
+        FIELD cliente   		AS CHARACTER
+        FIELD cep       		AS CHARACTER
+        FIELD logradouro       	AS CHARACTER
+        FIELD bairro      	    AS CHARACTER
+        FIELD cidadeuf      	AS CHARACTER
+        FIELD tipotpitem        AS CHARACTER
+        FIELD ocorrencia  	    AS CHARACTER
+        FIELD resposta    	    AS CHARACTER
+        FIELD investigacao	    AS CHARACTER
+        FIELD dthrmanifestacao  AS CHARACTER
+        FIELD id                AS CHARACTER
+        FIELD sstatus           AS CHARACTER
+        FIELD parecer           AS CHARACTER
+        FIELD usuar             AS CHARACTER
+        FIELD grpusuar          AS CHARACTER
+        FIELD concparecer       AS CHARACTER
+        FIELD usuario           AS CHARACTER
+        .
+
+DEFINE VARIABLE lg-RetOK      	AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE c-MsgResponse   AS CHARACTER NO-UNDO.
+
+DEFINE TEMP-TABLE body NO-UNDO
+   	FIELD parecertecnico    AS CHARACTER
+    FIELD acao              AS CHARACTER
+	.
+/** Variaveis */
+DEF VAR resquest			    AS CHARACTER NO-UNDO.
+DEF VAR i-seq                   AS INTEGER NO-UNDO INIT 0. 
+DEF VAR i-id-tar-manifestacao   AS INTEGER NO-UNDO INIT 0.
+DEF VAR c-body      	        AS CHARACTER NO-UNDO.
+DEF VAR c-email      	        AS CHARACTER NO-UNDO.
+DEF VAR c-status                AS CHARACTER NO-UNDO.
+DEF VAR pConclusao              AS CHARACTER NO-UNDO.
+
+DEFINE DATASET dsRetorno            FOR ttRetorno.
+DEFINE BUFFER b-tar-manifestacao    FOR tar-manifestacao.
+
+resquest = get-value("requested").
+
+CASE REQUEST_METHOD:
+
+ 	WHEN "GET" THEN DO:
+		
+	 	IF resquest = 'manifestacao' THEN DO:
+            FOR EACH manifestacao NO-LOCK WHERE manifestacao.id-manifestacao = get-value("id") /*AND manifestacao.cd-status = 1*/ ,
+                EACH grp_usuar FIELDS ( cod_grp_usuar des_grp_usuar ) NO-LOCK WHERE grp_usuar.cod_grp_usuar = manifestacao.cod-grp-usuar
+                :
+
+                RUN pi-registro-retorno.
+
+            END.
+
+            RUN pi-retorno.
+        END.
+
+        IF resquest = 'itemmanifestacao' THEN DO:
+            FOR EACH item-manifestacao NO-LOCK WHERE item-manifestacao.id-manifestacao = get-value("id"),
+                FIRST item  FIELDS (desc-item it-codigo) NO-LOCK
+                    WHERE item.it-codigo = item-manifestacao.it-codigo:
+
+                ASSIGN i-seq = i-seq + 1.
+                RUN pi-registro-retorno.
+
+            END.
+
+            RUN pi-retorno.
+        END.
+
+        IF resquest = 'anexomanifestacao' THEN DO:
+            FOR EACH anexo-manifestacao FIELDS ( id-manifestacao path-anexo) NO-LOCK WHERE anexo-manifestacao.id-manifestacao = get-value("id"):
+
+                RUN pi-registro-retorno.
+
+            END.
+
+            RUN pi-retorno.
+        END.
+
+        IF resquest = 'historicomanifestacao' THEN DO:
+            FOR EACH hist-manifestacao NO-LOCK WHERE hist-manifestacao.id-manifestacao = get-value("id")
+                BY hist-manifestacao.id-hist-manifestacao:
+
+                RUN pi-registro-retorno.
+
+            END.
+
+            RUN pi-retorno.
+        END.
+        
+    END.
+
+    WHEN "POST" THEN DO:
+		
+         IF resquest = 'assumemanifestacao' THEN DO:
+            
+            RUN pi-red-json (INPUT-OUTPUT lg-RetOK, INPUT-OUTPUT c-MsgResponse).
+            
+            find first body no-lock no-error.
+            
+            message 'avail ' avail(body).
+            if avail(body) then
+                assign parecertecnico   = body.parecertecnico
+                       .
+         
+            FOR EACH manifestacao FIELDS ( id-manifestacao nr-protocolo cd-status cod-usuar cod-grp-usuar ) NO-LOCK 
+                    WHERE manifestacao.id-manifestacao = get-value("id") /*AND manifestacao.cd-status = 1*/,
+                EACH grp_usuar FIELDS ( cod_grp_usuar des_grp_usuar ) NO-LOCK WHERE grp_usuar.cod_grp_usuar = manifestacao.cod-grp-usuar,
+                EACH b-tar-manifestacao NO-LOCK 
+                    WHERE b-tar-manifestacao.id-manifestacao        = manifestacao.id-manifestacao
+                      AND b-tar-manifestacao.id-tar-manifestacao    = INT(get-value('idtar')):
+                
+               
+                         
+                /*Envia email ao grupo respons vel pela manifestacao*/
+                ASSIGN c-body = manifestacao.id-manifestacao.
+                ASSIGN c-email = fi-get-email-destinatario(INPUT manifestacao.cod-grp-usuar)
+                        .
+                RUN pi-envia-email(INPUT app_config.email_remetente_solic, INPUT c-email, INPUT (parecertecnico + ' ') + manifestacao.nr-protocolo + ', assumida por ' + usuarioCorrente, INPUT (c-body), OUTPUT c-status, INPUT 'Assumida').
+                RUN pi-finaliza-tarefa-manifestcacao(INPUT b-tar-manifestacao.id-tar-manifestacao).
+                RUN pi-grava-tarefa-manifestcacao(INPUT b-tar-manifestacao.id-manifestacao, INPUT 'Assumiu ' + lower(parecertecnico)+ ' aberta', INPUT 'ASSUMIDA', INPUT usuarioCorrente, OUTPUT i-id-tar-manifestacao, INPUT '', INPUT '', INPUT usuarioCorrente).
+                //run pi-grava-envia-email(INPUT b-tar-manifestacao.id-manifestacao, INPUT i-id-tar-manifestacao, INPUT c-body, INPUT c-status).
+                RUN pi-grava-historico-manifestcacao(INPUT b-tar-manifestacao.id-manifestacao, INPUT parecertecnico + ' assumida por ' + usuarioCorrente + '.', INPUT 'ASSUMIDA', INPUT usuarioCorrente, INPUT '', INPUT '', INPUT usuarioCorrente).
+                  
+                RUN pi-registro-retorno.
+
+            END.
+            
+            FIND FIRST manifestacao EXCLUSIVE-LOCK 
+                    WHERE manifestacao.id-manifestacao = get-value("id") /*AND manifestacao.cd-status = 1*/ NO-ERROR.
+                    
+            IF AVAIL (manifestacao) THEN
+               ASSIGN manifestacao.cd-status      = 2
+                      manifestacao.cod-usuar      = usuarioCorrente. 
+
+            RUN pi-retorno.
+        END.
+        
+        IF resquest = 'finalizamanifestacao' THEN DO:
+         
+            RUN pi-red-json (INPUT-OUTPUT lg-RetOK, INPUT-OUTPUT c-MsgResponse).
+            
+            find first body no-lock no-error.
+            
+            message 'avail ' avail(body).
+            if avail(body) then
+                assign parecertecnico   = body.parecertecnico
+                       acao             = body.acao.
+                       
+            FOR EACH manifestacao FIELDS ( id-manifestacao nr-protocolo cd-status cod-usuar cod-grp-usuar ) NO-LOCK 
+                    WHERE manifestacao.id-manifestacao = get-value("id") /*AND manifestacao.cd-status = 1*/,
+                EACH grp_usuar FIELDS ( cod_grp_usuar des_grp_usuar ) NO-LOCK WHERE grp_usuar.cod_grp_usuar = manifestacao.cod-grp-usuar,
+                EACH b-tar-manifestacao NO-LOCK 
+                    WHERE b-tar-manifestacao.id-manifestacao        = manifestacao.id-manifestacao
+                      AND b-tar-manifestacao.id-tar-manifestacao    = INT(get-value('idtar')):
+                
+                ASSIGN pConclusao = b-tar-manifestacao.conclusao-parecer.
+                         
+                /*Envia email ao grupo respons vel pela manifestacao*/
+                ASSIGN c-body = manifestacao.id-manifestacao.
+                ASSIGN c-email = fi-get-email-destinatario(INPUT manifestacao.cod-grp-usuar)
+                        .
+                        
+                RUN pi-envia-email(INPUT app_config.email_remetente_solic, INPUT c-email, INPUT (acao + ' ') + manifestacao.nr-protocolo + ', finalizada por ' + usuarioCorrente, INPUT (c-body), OUTPUT c-status, INPUT 'Finalizada').
+                RUN pi-finaliza-tarefa-manifestcacao(INPUT b-tar-manifestacao.id-tar-manifestacao).
+                RUN pi-grava-tarefa-manifestcacao(INPUT b-tar-manifestacao.id-manifestacao, INPUT acao + ' finalizada ', INPUT 'FINALIZADA', INPUT usuarioCorrente, OUTPUT i-id-tar-manifestacao, INPUT '',INPUT pConclusao, INPUT usuarioCorrente).
+                //run pi-grava-envia-email(INPUT b-tar-manifestacao.id-manifestacao, INPUT i-id-tar-manifestacao, INPUT c-body, INPUT c-status).
+                RUN pi-grava-historico-manifestcacao(INPUT b-tar-manifestacao.id-manifestacao, INPUT parecertecnico, INPUT 'FINALIZADA', INPUT usuarioCorrente, INPUT '',INPUT pConclusao, INPUT usuarioCorrente).
+                  
+                RUN pi-registro-retorno.
+
+            END.
+            
+            FIND FIRST manifestacao EXCLUSIVE-LOCK 
+                    WHERE manifestacao.id-manifestacao = get-value("id") /*AND manifestacao.cd-status = 1*/ NO-ERROR.
+                    
+            IF AVAIL (manifestacao) THEN
+               ASSIGN manifestacao.cd-status            = 5
+                      manifestacao.cod-usuar            = usuarioCorrente
+                      manifestacao.conclusao-parecer    = pConclusao. 
+
+            RUN pi-retorno.
+        END.
+    END.
+
+END CASE.
+
+
+/** Retorna Json */
+PROCEDURE pi-retorno:
+
+    DEFINE VARIABLE lRetOK      AS LOGICAL   NO-UNDO.
+   
+   	ASSIGN lRetOK = DATASET dsRetorno:WRITE-JSON("STREAM", "WebStream",NO, "utf-8", ?, TRUE).
+
+END PROCEDURE.
+
+
+/** Cria registro de retorno */
+PROCEDURE pi-registro-retorno:
+
+    DEF VAR v-grp-usuar          AS CHAR.
+    DEF VAR v-nom-usuar          AS CHAR.
+    DEF VAR v-nom-usuar-corrente AS CHAR.
+    DEF VAR c-tpitem AS CHAR NO-UNDO.
+    DEF VAR c-tipo AS CHAR NO-UNDO.
+    	 
+    CREATE ttRetorno.
+    
+    IF resquest = 'manifestacao' THEN DO:
+        FIND FIRST ttTipo NO-LOCK WHERE ttTipo.cod-tipo =  manifestacao.ds-tpo-manifestacao NO-ERROR.
+        IF AVAIL(ttTipo) THEN
+            ASSIGN c-tipo = ttTipo.dsc-tipo.
+            
+        FIND FIRST ttTpItem NO-LOCK WHERE ttTpItem.cod-grp-usuar = manifestacao.cod-grp-usuar NO-ERROR.
+        IF AVAIL(ttTpItem) THEN
+            ASSIGN c-tpitem = ttTpItem.nom-grp-usuar.
+            
+        ASSIGN ttRetorno.protocolo      = manifestacao.nr-protocolo
+           ttRetorno.origem             = manifestacao.origem
+           ttRetorno.telefone           = manifestacao.nr-telefone
+           ttRetorno.cliente            = manifestacao.nm-cliente
+           ttRetorno.cep                = manifestacao.cep
+           ttRetorno.logradouro         = manifestacao.ds-logradouro + ", " + manifestacao.nr-logradouro + " - " + manifestacao.complemento
+           ttRetorno.bairro             = manifestacao.bairro
+           ttRetorno.cidadeuf           = manifestacao.cidade + " - " + manifestacao.cd-uf
+           ttRetorno.tipotpitem         = c-tipo + ": " + c-tpitem
+           ttRetorno.ocorrencia         = manifestacao.ds-ocorrencia
+           ttRetorno.resposta           = manifestacao.ds-resp-imediata
+           ttRetorno.investigacao       = manifestacao.ds-investigacao
+           ttRetorno.dthrmanifestacao   = STRING(manifestacao.dt-cadastro) + " " + STRING(manifestacao.hr-cadastro, "HH:MM:SS" )
+           ttRetorno.usuario            = fi-get-nomusuario(manifestacao.cod-usu-cadastro)
+           . 
+    END.
+    ELSE IF resquest = 'itemmanifestacao' THEN
+        ASSIGN ttRetorno.item         = item.it-codigo + " - " + item.desc-item
+               .
+    ELSE IF resquest = 'anexomanifestacao' THEN
+        ASSIGN ttRetorno.pathanexo    = app_config.href_img_anexo + anexo-manifestacao.id-manifestacao + "/" + anexo-manifestacao.path-anexo
+               ttRetorno.nameanexo    = anexo-manifestacao.path-anexo
+            .
+    ELSE IF resquest = 'historicomanifestacao' THEN DO:
+    
+        IF (hist-manifestacao.cod-grp-usuar <> '' ) THEN 
+            ASSIGN v-grp-usuar = fi-get-nomgrupo(hist-manifestacao.cod-grp-usuar).
+        ELSE
+            ASSIGN v-nom-usuar = fi-get-nomusuario(hist-manifestacao.cod-usuar).
+                
+        ASSIGN v-nom-usuar-corrente = fi-get-nomusuario(hist-manifestacao.cod-usuar-corrente).
+        
+        ASSIGN  ttRetorno.id                = hist-manifestacao.id-manifestacao	
+                ttRetorno.dthrmanifestacao  = STRING(hist-manifestacao.dt-cadastro) + " " + STRING(hist-manifestacao.hr-cadastro, "HH:MM:SS" )
+                ttRetorno.sstatus           = (hist-manifestacao.ds-status) + ' por ' + v-nom-usuar-corrente
+                ttRetorno.parecer           = hist-manifestacao.ds-parecer	
+                ttRetorno.usuar             = if (hist-manifestacao.cod-grp-usuar <> '' ) then 'Grupo: ' + v-grp-usuar else v-nom-usuar 	
+                ttRetorno.grpusuar          = hist-manifestacao.cod-grp-usuar
+                ttRetorno.concparecer       = (hist-manifestacao.conclusao-parecer)
+                .
+    END.
+
+END PROCEDURE.
+
+
+PROCEDURE pi-red-json:
+   	DEFINE INPUT-OUTPUT PARAMETER pRetOK      		AS LOGICAL   NO-UNDO.
+	DEFINE INPUT-OUTPUT PARAMETER pMsgResponse      AS CHARACTER NO-UNDO.
+   
+	DEFINE VARIABLE ix						AS INT.
+
+   ASSIGN pRetOK = TEMP-TABLE body:READ-JSON("HANDLE", WEB-CONTEXT, "MERGE").
+  
+   IF ERROR-STATUS:ERROR OR ERROR-STATUS:NUM-MESSAGES > 0 THEN DO:
+      DO ix = 1 TO ERROR-STATUS:NUM-MESSAGES:
+         ASSIGN pMsgResponse = pMsgResponse + STRING (ERROR-STATUS:GET-NUMBER(ix)) + " " + ERROR-STATUS:GET-MESSAGE(ix) + ". ".
+      END.                                                                                                       
+   END.
+
+	MESSAGE 'pRetOK....... ' pRetOK.
+	MESSAGE 'pMsgResponse. ' pMsgResponse.
+  	
+END PROCEDURE.
+
+%>

@@ -1,0 +1,225 @@
+<%
+{include/config.i}
+{include/seguranca.i "GET"}
+{include/contenttype.i "text/html;charset=UTF-8"}
+{include/app.i}
+
+/**
+ * 
+ * ---------------
+ *
+ *  - Portal de Solicitacoes
+ *
+ * Autor: carloseloi.prado@gmail.com
+ */
+
+%>
+
+<!DOCTYPE html>
+<html>
+
+<% {view/layout/html_head_manifestacao.i} %>
+
+<body id="page-top" ng-app="app" ng-controller="PrintManifestacao as main">
+
+  <!--div data-ng-controller="DetailManifestacao" data-ng-init="init()"></div-->
+
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+      
+    <!-- Begin Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+    
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+            
+            <!-- Content Row -->
+            <div class="row justify-content-center">
+
+			  <!-- Area Chart -->
+              <div class="col-xl-8 col-lg-10 col-md-10">								
+																							
+                    <div class="card shadow mb-4">
+                        <!-- Card Header - Dropdown -->
+                        <div class="card-header py-3 d-flex flex-row align-items-left">                            
+                            <h6 class="m-0 font-weight-bold text-gray-800">Data Hora da Impress&atilde;o:</h6>&nbsp;&nbsp;
+                            <h6 class="h6 font-weight  text-gray-800">{{dthrimpressao}}	</h6>                            
+                            <div class="col-sm-6 text-right">
+                                <i onclick="window.print()" class="fa fa-print" style="font-size:24px" data-toggle="tooltip" data-placement="right" title="Imprimie Manifesta&ccedil;&atilde;o Detalhada!"></i>
+                                <h6 class="m-0 font-weight-bold text-gray-800">Imprimir</h6>
+                            </div>                            
+                        </div>
+                        <!-- Card Body -->
+                        <div class="card-body">
+                            
+                            <div class="card-body" style="padding: 0.1rem">                                        
+                            <div class="table-responsive">
+                                <table class="table" id="dataTable" width="100%" cellspacing="0" style="font-size: 0.9rem;">
+                                <tbody>
+                                    <tr>
+                                        <td style="width: 22%; text-align: right; border-top: 0px; border-bottom: 1px solid #dddfeb">
+                                            <h6 class="m-0 font-weight-bold text-gray-800">ID Manifesta&ccedil;&atilde;o:</h6></td>
+                                        <td style="width: 28%; border-top: 0px; border-bottom: 1px solid #dddfeb ">{{idmanifestacao}}</td>                                          
+                                        <td style="width: 20%; text-align: right; border-top: 0px; border-bottom: 1px solid #dddfeb ">
+                                            <h6 class="m-0 font-weight-bold text-gray-800">Protocolo:</h6></td>
+                                        <td style="width: 30%; border-top: 0px; border-bottom: 1px solid #dddfeb ">{{protocolo}}</td>  
+                                    </tr>                                        
+                                    <tr>
+                                        <td style="width: 22%; text-align: right; border-top: 0px; border-bottom: 1px solid #dddfeb">
+                                            <h6 class="m-0 font-weight-bold text-gray-800">Aberta:</h6></td>
+                                        <td style="width: 28%; border-top: 0px; border-bottom: 1px solid #dddfeb ">{{dthrmanifestacao}}</td>                                          
+                                        <td style="width: 22%; text-align: right; border-top: 0px; border-bottom: 1px solid #dddfeb ">
+                                            <h6 class="m-0 font-weight-bold text-gray-800">Usu&aacute;rio Cadastro:</h6></td>
+                                        <td style="width: 28%; border-top: 0px; border-bottom: 1px solid #dddfeb ">{{usuario}}</td>  
+                                    </tr>                                        
+                                    <tr>
+                                        <td style="width: 22%; text-align: right; border-top: 0px; border-bottom: 1px solid #dddfeb">
+                                            <h6 class="m-0 font-weight-bold text-gray-800">Origem:</h6></td>
+                                        <td style="width: 28%; border-top: 0px; border-bottom: 1px solid #dddfeb ">{{origem}}</td>                                          
+                                        <td style="width: 20%; text-align: right; border-top: 0px; border-bottom: 1px solid #dddfeb ">
+                                            <h6 class="m-0 font-weight-bold text-gray-800">Telefone:</h6></td>
+                                        <td style="width: 30%; border-top: 0px; border-bottom: 1px solid #dddfeb ">{{telefone}}</td>
+                                    </tr>                                        
+                                    <tr>
+                                        <td style="width: 22%; text-align: right; border-top: 0px; border-bottom: 1px solid #dddfeb">
+                                            <h6 class="m-0 font-weight-bold text-gray-800">Cliente:</h6></td>
+                                        <td style="width: 28%; border-top: 0px; border-bottom: 1px solid #dddfeb ">{{cliente}}</td>                                          
+                                        <td style="width: 20%; text-align: right; border-top: 0px; border-bottom: 1px solid #dddfeb ">
+                                            <h6 class="m-0 font-weight-bold text-gray-800">Endere&ccedil;o:</h6></td>
+                                        <td style="width: 30%; border-top: 0px; border-bottom: 1px solid #dddfeb ">
+                                            <p class="mb-4">{{logradouro}}<br>
+                                                {{cidadeuf}}&nbsp;&nbsp;-&nbsp;&nbsp;<b>CEP</b>:&nbsp;{{cep}}</p>
+                                        </td>  
+                                    </tr>                                        
+                                    <tr>
+                                        <td style="width: 22%; text-align: right; border-top: 0px; border-bottom: 1px solid #dddfeb">
+                                            <h6 class="m-0 font-weight-bold text-gray-800">Tipo:</h6></td>
+                                        <td colspan="3" style="width: 28%; border-top: 0px; border-bottom: 1px solid #dddfeb;">{{tipotpitem}}</td>
+                                    </tr>                                                                               
+                                    <tr>                                        
+                                        <td style="width: 22%; text-align: right; border-top: 0px; border-bottom: 1px solid #dddfeb ">
+                                            <h6 class="m-0 font-weight-bold text-gray-800">Itens:</h6></td>
+                                        <td colspan="3" style="width: 76%; border-top: 0px; border-bottom: 1px solid #dddfeb;">
+                                            <table class="table" id="dataTable" width="100%" cellspacing="0" style="font-size: 0.8rem;">
+                                                <thead>                                            
+                                                <tbody>                                            
+                                                    <tr ng-repeat="x in itensmanifestacao">
+                                                        <td style="text-align: left; border-top: 0px; border-bottom: 1px solid #dddfeb ">{{ x.item }}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                </table>
+                            </div>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <div class="form-group row">
+                                <div class="col-sm-12 text-left">
+                                    <h6 class="h6 mb-1 font-weight-bold text-gray-800">Ocorr&ecirc;ncia:</h6>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-sm-12 text-left">
+                                    <p class="mb-4">{{ocorrencia}}</p>
+                                </div>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <div class="form-group row">
+                                <div class="col-sm-12 text-left">
+                                    <h6 class="h6 mb-1 font-weight-bold text-gray-800">Resposta:</h6>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-sm-12 text-left">
+                                    <p class="mb-4">{{resposta}}</p>
+                                </div>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <div class="form-group row">
+                                <div class="col-sm-12 text-left">
+                                    <h6 class="h6 mb-1 font-weight-bold text-gray-800">Investiga&ccedil;&atilde;o:</h6>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-sm-12 text-left">
+                                    <p class="mb-4">{{investigacao}}</p>
+                                </div>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <div class="form-group row">
+                                <div class="col-sm-12 text-left">
+                                    <h6 class="h6 mb-1 font-weight-bold text-gray-800">Anexos:</h6>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-sm-12 text-left">
+                                    <table class="table" id="dataTable" width="100%" cellspacing="0" style="font-size: 0.7rem;">
+                                        <thead>                                            
+                                        <tbody>                                            
+                                            <tr style="border: 0px;" ng-repeat="x in anexomanifestacao">
+                                                <td>
+                                                    <a href="{{x.pathanexo}}" target="_blank" class="btn btn-icon-split">
+                                                        <span  class="fas fa-paperclip"></span>{{ x.nameanexo }}</a>                                                    
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>                                            
+                                </div>
+                            </div>   
+                            <div class="dropdown-divider"></div>
+                            <div class="form-group row">
+                                <div class="col-sm-12 text-left">
+                                    <h5 class="h5 mb-1 font-weight-bold text-gray-800">Hist&oacute;rico:</h5>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-sm-12 text-left">
+                                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0" style="font-size: 0.7rem;">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 32px;">Data Hora</th>
+                                                <th>Status</th>
+                                                <th>Parecer</th>
+                                                <th>Hist&oacute;rico</th>
+                                                <th>Respons&aacute;vel</th>                                          
+                                            </tr>
+                                        </thead>                                            
+                                        <tbody>                                            
+                                            <tr style="border: 0px;" ng-repeat="x in historicomanifestacao">
+                                                <td>{{ x.dthrmanifestacao }}</td>
+                                                <td>{{ x.sstatus }}</td>
+                                                <td>{{ x.concparecer }}</td>
+                                                <td>{{ x.parecer }}</td>
+                                                <td>{{ x.usuar }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>                                            
+                                </div>
+                            </div>                         
+                        </div>                        
+                    </div>
+                </div> 				
+            </div>
+          </div>
+          <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+      <% {view/layout/html_copyright.i} %>
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+
+  <% {view/layout/html_footer_manifestacao.i} %>
+
+</body>
+</html>
