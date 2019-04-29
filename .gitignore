@@ -1,0 +1,5 @@
+#Temporário WebSpeed
+.DS_Store
+#busca de itens Embalagens/Produto Acabado
+app/action/data/itemestoque.html
+app/config/config.xml
