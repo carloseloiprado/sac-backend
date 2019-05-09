@@ -9,8 +9,50 @@
 
 {utp/utapi019.i}
 
+
+/**Fun‡äes de conversÆo de charset*/
+function cpcEmail returns char (p-string as character):
+    return codepage-convert(p-string,"iso8859-1","utf-8").
+end function.
+
+function cpc-inEmail returns char (p-string as character):
+    return codepage-convert(p-string,"utf-8","iso8859-1").
+end function.
+
+function cpc-outEmail returns char (p-string as character):
+    return codepage-convert(p-string,"iso8859-1","ibm850").
+end function.
+
+function cpc-lblEmail returns char (p-string as character):
+    return codepage-convert(p-string,"ibm850","iso8859-1").
+end function.
+
+function cpc-UtfEmail returns char (p-string as character):
+    return codepage-convert(p-string,"ibm850","utf-8").
+end function.
+
 DEFINE BUFFER bmail-manifestacao FOR manifestacao.
 
+DEF TEMP-TABLE ttTpItemMail no-undo
+    FIELD cod-grp-usuar    as CHAR
+    FIELD nom-grp-usuar    as CHAR.
+
+CREATE ttTpItemMail. ASSIGN ttTpItemMail.cod-grp-usuar = 'SAI' ttTpItemMail.nom-grp-usuar = 'Produto'. 
+CREATE ttTpItemMail. ASSIGN ttTpItemMail.cod-grp-usuar = 'SAE' ttTpItemMail.nom-grp-usuar = 'Embalagens'. 
+CREATE ttTpItemMail. ASSIGN ttTpItemMail.cod-grp-usuar = 'SAL' ttTpItemMail.nom-grp-usuar = cpc-lblEmail('Transporte/Logística'). 
+CREATE ttTpItemMail. ASSIGN ttTpItemMail.cod-grp-usuar = 'SAP' ttTpItemMail.nom-grp-usuar = cpc-lblEmail('Produção').  
+
+DEF TEMP-TABLE ttTipoMail no-undo
+    FIELD cod-tipo    as CHAR
+    FIELD dsc-tipo    as CHAR.
+
+CREATE ttTipoMail. ASSIGN ttTipoMail.cod-tipo = 'elogio' ttTipoMail.dsc-tipo = 'Elogio'. 
+CREATE ttTipoMail. ASSIGN ttTipoMail.cod-tipo = 'informacao' ttTipoMail.dsc-tipo = cpc-lblEmail('Informação'). 
+CREATE ttTipoMail. ASSIGN ttTipoMail.cod-tipo = 'sugestao' ttTipoMail.dsc-tipo = cpc-lblEmail('Sugestão'). 
+CREATE ttTipoMail. ASSIGN ttTipoMail.cod-tipo = 'reclamacao' ttTipoMail.dsc-tipo = cpc-lblEmail('Reclamação'). 
+CREATE ttTipoMail. ASSIGN ttTipoMail.cod-tipo = 'solicitacao' ttTipoMail.dsc-tipo = cpc-lblEmail('Solicitação'). 
+CREATE ttTipoMail. ASSIGN ttTipoMail.cod-tipo = 'ondeencontrar' ttTipoMail.dsc-tipo = cpc-lblEmail('Onde Encontrar').
+ 
 FUNCTION fi-get-email-destinatario RETURNS CHAR (pgrupoParam AS CHARACTER):
 
 	DEF VAR c-lstEmails AS CHAR INIT "".
@@ -32,7 +74,9 @@ END FUNCTION.
 
 FUNCTION fi-get-template-email RETURNS LONGCHAR (pIDManifestacao AS CHAR):
 
-    DEFINE VARIABLE lc-itens AS LONGCHAR.
+    DEFINE VARIABLE lc-itens AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE c-tpitem    AS CHAR NO-UNDO.
+    DEFINE VARIABLE c-tipo      AS CHAR NO-UNDO.
     
     FIND FIRST bmail-manifestacao NO-LOCK WHERE bmail-manifestacao.id-manifestacao = pIDManifestacao NO-ERROR.
     
@@ -54,6 +98,14 @@ FUNCTION fi-get-template-email RETURNS LONGCHAR (pIDManifestacao AS CHAR):
         END.
         
         ASSIGN lc-itens = lc-itens + '</tbody></table></td>'.
+
+        FIND FIRST ttTipoMail NO-LOCK WHERE ttTipoMail.cod-tipo =  bmail-manifestacao.ds-tpo-manifestacao NO-ERROR.
+        IF AVAIL(ttTipoMail) THEN
+            ASSIGN c-tipo = ttTipoMail.dsc-tipo.
+            
+        FIND FIRST ttTpItemMail NO-LOCK WHERE ttTpItemMail.cod-grp-usuar = bmail-manifestacao.cod-grp-usuar NO-ERROR.
+        IF AVAIL(ttTpItemMail) THEN
+            ASSIGN c-tpitem = ttTpItemMail.nom-grp-usuar.
     END.
 
     IF NOT AVAIL(bmail-manifestacao) THEN
@@ -130,7 +182,7 @@ FUNCTION fi-get-template-email RETURNS LONGCHAR (pIDManifestacao AS CHAR):
                                             <tr>
                                                 <td style="width: 22%; text-align: right; border-top: 0px; border-bottom: 1px solid #dddfeb">
                                                     <h4 class="m-0 font-weight-bold text-gray-800">Tipo:</h4></td>
-                                                <td colspan="3" style="width: 28%; border-top: 0px; border-bottom: 1px solid #dddfeb;" class="ng-binding">' + bmail-manifestacao.ds-tpo-manifestacao + ': ' + bmail-manifestacao.cod-grp-usuar  + '</td>
+                                                <td colspan="3" style="width: 28%; border-top: 0px; border-bottom: 1px solid #dddfeb;" class="ng-binding">' + c-tipo + ": " + c-tpitem  + '</td>
                                             </tr>                                                                               
                                             <tr>                                        
                                                 <td style="width: 22%; text-align: right; border-top: 0px; border-bottom: 1px solid #dddfeb ">
@@ -184,7 +236,7 @@ FUNCTION fi-get-template-email RETURNS LONGCHAR (pIDManifestacao AS CHAR):
              <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                   <div class="copyright text-center my-auto">
-                    <span>Copyright &copy; Cera Ingelza - 2019</span><BR>
+                    <span>Copyright &copy; Cera Ingleza - 2019</span><BR>
                     <span>Para mais informa&ccedil;&otilde;es acesse o portal: <a href="https://inglezaonline.com.br/cgi-bin/ws.do/WService=sac/login">https://inglezaonline.com.br/cgi-bin/ws.do/WService=sac/login</a></span>
                   </div>
                 </div>

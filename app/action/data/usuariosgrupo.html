@@ -50,10 +50,10 @@ ASSIGN ttRetorno.id 		= 'SAE'.
        ttRetorno.nome 		= 'Embalagens'.
 CREATE ttRetorno.
 ASSIGN ttRetorno.id 		= 'SAL'.
-       ttRetorno.nome 		= 'Transporte/Log' + CHR(237) + 'stica'.
+       ttRetorno.nome 		= cpc-lbl('Transporte/Logística').
 CREATE ttRetorno.
 ASSIGN ttRetorno.id 		= 'SAP'.
-       ttRetorno.nome 		= 'Produ' + CHR(231) + CHR(227)  + 'o'.
+       ttRetorno.nome 		= cpc-lbl('Produção').  
            
 FOR EACH usuar_grp_usuar FIELDS( usuar_grp_usuar.cod_grp_usuar usuar_grp_usuar.cod_usuario ) NO-LOCK
   WHERE usuar_grp_usuar.cod_grp_usuar = codgrpusuar AND usuar_grp_usuar.cod_grp_usuar <> 'SAC',

@@ -143,13 +143,15 @@ PROCEDURE pi-finaliza-manifestacao:
 
 	DEFINE INPUT-OUTPUT PARAMETER pRetOK      		AS LOGICAL   NO-UNDO.
 	DEFINE INPUT-OUTPUT PARAMETER pMsgResponse      AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER pParecerTecnico       AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER pParecerTecnico   AS CHARACTER NO-UNDO.
 
 	DEFINE VARIABLE vDestino        		AS CHAR NO-UNDO. 
 	DEFINE VARIABLE vOrigem	        		AS CHAR NO-UNDO. 
 	DEFINE VARIABLE i-id-anexo-manifestacao	AS INT NO-UNDO.
 	DEFINE VARIABLE c-status        		AS CHAR NO-UNDO.
 	DEFINE VARIABLE i-id-tar-manifestacao	AS INT NO-UNDO.
+    DEFINE VARIABLE c-tpitem                AS CHAR NO-UNDO.
+    DEFINE VARIABLE c-tipo                  AS CHAR NO-UNDO.
 
 	FIND FIRST portal-manifestacao-form NO-LOCK
 		WHERE portal-manifestacao-form.finalizado 	= NO and							 
@@ -277,14 +279,22 @@ PROCEDURE pi-finaliza-manifestacao:
 		ASSIGN c-body = pMsgResponse.
 		ASSIGN c-email = fi-get-email-destinatario(INPUT manifestacao.cod-grp-usuar)
 			   .
-	    RUN pi-envia-email(INPUT app_config.email_remetente_solic, INPUT c-email, INPUT ('Nova ' + pParecerTecnico + ': ') + manifestacao.nr-protocolo, INPUT (c-body), OUTPUT c-status, INPUT 'Finalizada').
+        FIND FIRST ttTipo NO-LOCK WHERE ttTipo.cod-tipo =  manifestacao.ds-tpo-manifestacao NO-ERROR.
+        IF AVAIL(ttTipo) THEN
+            ASSIGN c-tipo = ttTipo.dsc-tipo.
+            
+        FIND FIRST ttTpItem NO-LOCK WHERE ttTpItem.cod-grp-usuar = manifestacao.cod-grp-usuar NO-ERROR.
+        IF AVAIL(ttTpItem) THEN
+            ASSIGN c-tpitem = ttTpItem.nom-grp-usuar.
+        
+        RUN pi-envia-email(INPUT app_config.email_remetente_solic, INPUT c-email, INPUT ('Nova ' + cpc-out(pParecerTecnico) + ' ' + manifestacao.nr-protocolo + ', ' + cpc-out(c-tipo + ": " + c-tpitem) + ': '), INPUT (c-body), OUTPUT c-status, INPUT 'Finalizada').
         
         IF ( manifestacao.ds-tpo-manifestacao <> 'reclamacao' ) THEN DO:
             
             ASSIGN c-email = ''
                    c-email = fi-get-email-destinatario(INPUT 'OUT').
             IF c-email <> '' THEN
-                RUN pi-envia-email(INPUT app_config.email_remetente_solic, INPUT c-email, INPUT ('Nova ' + pParecerTecnico + ': ') + manifestacao.nr-protocolo, INPUT (c-body), OUTPUT c-status, INPUT 'Finalizada').    
+                RUN pi-envia-email(INPUT app_config.email_remetente_solic, INPUT c-email, INPUT ('Nova ' + cpc-out(pParecerTecnico) + ' ' + manifestacao.nr-protocolo + ', ' + cpc-out(c-tipo + ": " + c-tpitem) +  ': '), INPUT (c-body), OUTPUT c-status, INPUT 'Finalizada').    
         END.
         
 		RUN pi-grava-tarefa-manifestcacao(INPUT pMsgResponse, INPUT 'Tarefa Criada', INPUT 'ABERTA', INPUT usuarioCorrente, OUTPUT i-id-tar-manifestacao, INPUT manifestacao.cod-grp-usuar, INPUT '', INPUT usuarioCorrente).
@@ -423,19 +433,19 @@ PROCEDURE pi-tramita-manifestacao:
        
 	    
         IF pTpItem = 'SAC' THEN DO:
-            RUN pi-envia-email(INPUT app_config.email_remetente_solic, INPUT c-email, INPUT cpc('Manifestação ') + manifestacao.nr-protocolo + ' ' + c-acao + ' por ' + cUsuarioCorrente, INPUT (c-body), OUTPUT c-status, INPUT '').
+            RUN pi-envia-email(INPUT app_config.email_remetente_solic, INPUT c-email, INPUT 'Manifestação ' + manifestacao.nr-protocolo + ' ' + cpc-out(c-acao) + ' por ' + cUsuarioCorrente, INPUT (c-body), OUTPUT c-status, INPUT '').
             RUN pi-finaliza-tarefa-manifestcacao(INPUT INT(pIdTarManifestacao)).
             RUN pi-grava-tarefa-manifestcacao(INPUT pIdManifestacao, INPUT ((pParecerTecnico)) , INPUT 'SOLUCIONADA', INPUT cUsuarioCorrente, OUTPUT i-id-tar-manifestacao, INPUT pTpItem, INPUT ((pConclusao)), INPUT cUsuarioCorrente).
             RUN pi-grava-historico-manifestcacao(INPUT pIdManifestacao, INPUT ((pParecerTecnico)) , INPUT 'SOLUCIONADA', INPUT cUsuarioCorrente, INPUT pTpItem, INPUT ((pConclusao)), INPUT usuarioCorrente).
         END.
         ELSE IF pConclusao = 'Procede' THEN DO:
-            RUN pi-envia-email(INPUT app_config.email_remetente_solic, INPUT c-email, INPUT cpc('Manifestação ') + manifestacao.nr-protocolo + ' ' + c-acao + ' por ' + cUsuarioCorrente, INPUT (c-body), OUTPUT c-status, INPUT pConclusao).
+            RUN pi-envia-email(INPUT app_config.email_remetente_solic, INPUT c-email, INPUT 'Manifestação ' + manifestacao.nr-protocolo + ' ' + cpc-out(c-acao) + ' por ' + cUsuarioCorrente, INPUT (c-body), OUTPUT c-status, INPUT pConclusao).
             RUN pi-finaliza-tarefa-manifestcacao(INPUT INT(pIdTarManifestacao)).
             RUN pi-grava-tarefa-manifestcacao(INPUT pIdManifestacao, INPUT ((pParecerTecnico)) , INPUT 'TRANSFERIDA', INPUT app_config.user_rnc, OUTPUT i-id-tar-manifestacao, INPUT '', INPUT ((pConclusao)), INPUT cUsuarioCorrente).
             RUN pi-grava-historico-manifestcacao(INPUT pIdManifestacao, INPUT ((pParecerTecnico)) , INPUT 'TRANSFERIDA', INPUT app_config.user_rnc, INPUT '', INPUT ((pConclusao)), INPUT usuarioCorrente).
         END.
         ELSE DO:
-           RUN pi-envia-email(INPUT app_config.email_remetente_solic, INPUT c-email, INPUT cpc('Manifestação ') + manifestacao.nr-protocolo + ' ' + c-acao + ' por ' + cUsuarioCorrente, INPUT (c-body), OUTPUT c-status, INPUT ''). 
+           RUN pi-envia-email(INPUT app_config.email_remetente_solic, INPUT c-email, INPUT 'Manifestação ' + manifestacao.nr-protocolo + ' ' + cpc-out(c-acao) + ' por ' + cUsuarioCorrente, INPUT (c-body), OUTPUT c-status, INPUT ''). 
            FIND FIRST tar-manifestacao NO-LOCK WHERE tar-manifestacao.id-tar-manifestacao = INT(pIdTarManifestacao) NO-ERROR.
            IF AVAIL (tar-manifestacao) THEN
                 ASSIGN  cUsuarioCorrente    = tar-manifestacao.cod-usuar
@@ -555,7 +565,7 @@ PROCEDURE pi-finaliza-edicao-manifestacao:
 		ASSIGN c-email = fi-get-email-destinatario(INPUT manifestacao.cod-grp-usuar)
 			   .
         
-        RUN pi-envia-email(INPUT app_config.email_remetente_solic, INPUT c-email, INPUT cpc('Manifestação ') + manifestacao.nr-protocolo + ' editada por ' + usuarioCorrente, INPUT (c-body), OUTPUT c-status, INPUT 'Finalizada').
+        RUN pi-envia-email(INPUT app_config.email_remetente_solic, INPUT c-email, INPUT 'Manifestação ' + manifestacao.nr-protocolo + ' editada por ' + usuarioCorrente, INPUT (c-body), OUTPUT c-status, INPUT 'Finalizada').
         //run pi-grava-envia-email(INPUT pIdManifestacao, INPUT i-id-tar-manifestacao, INPUT c-body, INPUT c-status).
         RUN pi-grava-historico-manifestcacao(INPUT pIdManifestacao, INPUT ((pParecerTecnico)) , INPUT 'EDITADA', INPUT usuarioCorrente, INPUT cTpItem, INPUT '', INPUT usuarioCorrente).
         
@@ -607,7 +617,7 @@ PROCEDURE pi-transfere-manifestacao:
 		ASSIGN c-body = pMsgResponse.
 		ASSIGN c-email = fi-get-email-destinatario(INPUT manifestacao.cod-grp-usuar)
 			   .
-	    RUN pi-envia-email(INPUT app_config.email_remetente_solic, INPUT c-email, INPUT cpc('Manifestação ') + manifestacao.nr-protocolo + ' ' + c-acao + ' por ' + usuarioCorrente, INPUT (c-body), OUTPUT c-status, INPUT 'Transferida').
+	    RUN pi-envia-email(INPUT app_config.email_remetente_solic, INPUT c-email, INPUT 'Manifestação ' + manifestacao.nr-protocolo + ' ' + cpc-out(c-acao) + ' por ' + usuarioCorrente, INPUT (c-body), OUTPUT c-status, INPUT 'Transferida').
         RUN pi-finaliza-tarefa-manifestcacao(INPUT INT(pIdTarManifestacao)).
         RUN pi-grava-tarefa-manifestcacao(INPUT pIdManifestacao, INPUT ((pParecerTecnico)) , INPUT 'TRANSFERIDA', INPUT cUsuarioCorrente, OUTPUT i-id-tar-manifestacao, INPUT cTpItem, INPUT ((pConclusao)), INPUT usuarioCorrente).
         //run pi-grava-envia-email(INPUT pIdManifestacao, INPUT i-id-tar-manifestacao, INPUT c-body, INPUT c-status).
@@ -622,7 +632,8 @@ PROCEDURE pi-transfere-manifestacao:
        ASSIGN manifestacao.cd-status            = IF pTpItem = 'SAC' THEN 4 ELSE manifestacao.cd-status
               manifestacao.cod-usuar            = ''
               manifestacao.conclusao-parecer    = pConclusao
-              pMsgResponse						= "protocolo: " + manifestacao.nr-protocolo.                                                                                                  
+              pMsgResponse						= "protocolo: " + manifestacao.nr-protocolo
+              manifestacao.cd-status            = 2.                                                                                                  
 END PROCEDURE.
 
 PROCEDURE pi-devolve-manifestacao:
@@ -660,7 +671,7 @@ PROCEDURE pi-devolve-manifestacao:
 		ASSIGN c-body = pMsgResponse.
 		ASSIGN c-email = fi-get-email-destinatario(INPUT manifestacao.cod-grp-usuar)
 			   .
-	    RUN pi-envia-email(INPUT app_config.email_remetente_solic, INPUT c-email, INPUT cpc('Manifestação ') + manifestacao.nr-protocolo + ' ' + c-acao + ' por ' + usuarioCorrente, INPUT (c-body), OUTPUT c-status, INPUT 'Devolvida').
+	    RUN pi-envia-email(INPUT app_config.email_remetente_solic, INPUT c-email, INPUT 'Manifestação ' + manifestacao.nr-protocolo + ' ' + cpc-out(c-acao) + ' por ' + usuarioCorrente, INPUT (c-body), OUTPUT c-status, INPUT 'Devolvida').
         RUN pi-finaliza-tarefa-manifestcacao(INPUT INT(pIdTarManifestacao)).
         RUN pi-grava-tarefa-manifestcacao(INPUT pIdManifestacao, INPUT ((pParecerTecnico)) , INPUT 'DEVOLVIDA', INPUT cUsuarioCorrente, OUTPUT i-id-tar-manifestacao, INPUT cTpItem, INPUT ((pConclusao)), INPUT usuarioCorrente).
         //run pi-grava-envia-email(INPUT pIdManifestacao, INPUT i-id-tar-manifestacao, INPUT c-body, INPUT c-status).

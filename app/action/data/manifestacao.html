@@ -145,9 +145,9 @@ CASE REQUEST_METHOD:
                          
                 /*Envia email ao grupo respons vel pela manifestacao*/
                 ASSIGN c-body = manifestacao.id-manifestacao.
-                ASSIGN c-email = fi-get-email-destinatario(INPUT manifestacao.cod-grp-usuar)
-                        .
-                RUN pi-envia-email(INPUT app_config.email_remetente_solic, INPUT c-email, INPUT (parecertecnico + ' ') + manifestacao.nr-protocolo + ', assumida por ' + usuarioCorrente, INPUT (c-body), OUTPUT c-status, INPUT 'Assumida').
+                ASSIGN c-email = fi-get-email-destinatario(INPUT manifestacao.cod-grp-usuar).                
+                
+                RUN pi-envia-email(INPUT app_config.email_remetente_solic, INPUT c-email, INPUT ( cpc-out(parecertecnico) + ' ') + manifestacao.nr-protocolo + ', assumida por ' + usuarioCorrente, INPUT (c-body), OUTPUT c-status, INPUT 'Assumida').
                 RUN pi-finaliza-tarefa-manifestcacao(INPUT b-tar-manifestacao.id-tar-manifestacao).
                 RUN pi-grava-tarefa-manifestcacao(INPUT b-tar-manifestacao.id-manifestacao, INPUT 'Assumiu ' + lower(parecertecnico)+ ' aberta', INPUT 'ASSUMIDA', INPUT usuarioCorrente, OUTPUT i-id-tar-manifestacao, INPUT '', INPUT '', INPUT usuarioCorrente).
                 //run pi-grava-envia-email(INPUT b-tar-manifestacao.id-manifestacao, INPUT i-id-tar-manifestacao, INPUT c-body, INPUT c-status).
@@ -189,10 +189,9 @@ CASE REQUEST_METHOD:
                          
                 /*Envia email ao grupo respons vel pela manifestacao*/
                 ASSIGN c-body = manifestacao.id-manifestacao.
-                ASSIGN c-email = fi-get-email-destinatario(INPUT manifestacao.cod-grp-usuar)
-                        .
-                        
-                RUN pi-envia-email(INPUT app_config.email_remetente_solic, INPUT c-email, INPUT (acao + ' ') + manifestacao.nr-protocolo + ', finalizada por ' + usuarioCorrente, INPUT (c-body), OUTPUT c-status, INPUT 'Finalizada').
+                ASSIGN c-email = fi-get-email-destinatario(INPUT manifestacao.cod-grp-usuar).
+                
+                RUN pi-envia-email(INPUT app_config.email_remetente_solic, INPUT c-email, INPUT ( cpc-out(acao) + ' ') + manifestacao.nr-protocolo + ', finalizada por ' + usuarioCorrente, INPUT (c-body), OUTPUT c-status, INPUT 'Finalizada').
                 RUN pi-finaliza-tarefa-manifestcacao(INPUT b-tar-manifestacao.id-tar-manifestacao).
                 RUN pi-grava-tarefa-manifestcacao(INPUT b-tar-manifestacao.id-manifestacao, INPUT acao + ' finalizada ', INPUT 'FINALIZADA', INPUT usuarioCorrente, OUTPUT i-id-tar-manifestacao, INPUT '',INPUT pConclusao, INPUT usuarioCorrente).
                 //run pi-grava-envia-email(INPUT b-tar-manifestacao.id-manifestacao, INPUT i-id-tar-manifestacao, INPUT c-body, INPUT c-status).

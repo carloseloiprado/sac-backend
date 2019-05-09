@@ -219,9 +219,9 @@ RUN btb/btapi910za.p (input get-value("cod_usuario"), INPUT get-value("senha"), 
 			   and usuar_mestre.cod_senha   = c-senha no-lock no-error.
 
     FIND FIRST usuar_grp_usuar  NO-LOCK WHERE usuar_grp_usuar.cod_usuar = lc(get-value("cod-usuario")) 
-                                         AND ( usuar_grp_usuar.cod_grp_usuar = 'SAI' OR usuar_grp_usuar.cod_grp_usuar = 'SAE' 
-                                               OR usuar_grp_usuar.cod_grp_usuar = 'SAL' 
-                                               OR usuar_grp_usuar.cod_grp_usuar = 'SAP' OR usuar_grp_usuar.cod_grp_usuar = 'SAC' )  NO-ERROR.
+                                         AND (    usuar_grp_usuar.cod_grp_usuar = 'SAI' OR usuar_grp_usuar.cod_grp_usuar = 'SAE' 
+                                               OR usuar_grp_usuar.cod_grp_usuar = 'SAL' OR usuar_grp_usuar.cod_grp_usuar = 'SAP' 
+                                               OR usuar_grp_usuar.cod_grp_usuar = 'SAC' OR usuar_grp_usuar.cod_grp_usuar = 'OUT' )  NO-ERROR.
                                                
     
 	if avail usuar_mestre AND AVAIL(usuar_grp_usuar) then do:
