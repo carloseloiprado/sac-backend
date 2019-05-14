@@ -158,7 +158,7 @@ FUNCTION fi-get-template-email RETURNS LONGCHAR (pIDManifestacao AS CHAR):
                                                 <td style="width: 28%; border-top: 0px; border-bottom: 1px solid #dddfeb " class="ng-binding">' + string(bmail-manifestacao.dt-cadastro) + ' ' + STRING( hr-cadastro,'hh:mm:ss') + '</td>                                          
                                                 <td style="width: 22%; text-align: right; border-top: 0px; border-bottom: 1px solid #dddfeb ">
                                                     <h4 class="m-0 font-weight-bold text-gray-800">Usu&aacute;rio Cadastro:</h4></td>
-                                                <td style="width: 28%; border-top: 0px; border-bottom: 1px solid #dddfeb " class="ng-binding">' + bmail-manifestacao.cod-usuar + '</td>  
+                                                <td style="width: 28%; border-top: 0px; border-bottom: 1px solid #dddfeb " class="ng-binding">' + bmail-manifestacao.cod-usu-cadastro + '</td>  
                                             </tr>                                        
                                             <tr>
                                                 <td style="width: 22%; text-align: right; border-top: 0px; border-bottom: 1px solid #dddfeb">

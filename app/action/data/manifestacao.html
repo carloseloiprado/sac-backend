@@ -271,6 +271,8 @@ PROCEDURE pi-registro-retorno:
             .
     ELSE IF resquest = 'historicomanifestacao' THEN DO:
     
+        FIND FIRST ttParecer NO-LOCK WHERE ttParecer.cod-parecer = hist-manifestacao.conclusao-parecer NO-ERROR. 
+    
         IF (hist-manifestacao.cod-grp-usuar <> '' ) THEN 
             ASSIGN v-grp-usuar = fi-get-nomgrupo(hist-manifestacao.cod-grp-usuar).
         ELSE
@@ -284,7 +286,7 @@ PROCEDURE pi-registro-retorno:
                 ttRetorno.parecer           = hist-manifestacao.ds-parecer	
                 ttRetorno.usuar             = if (hist-manifestacao.cod-grp-usuar <> '' ) then 'Grupo: ' + v-grp-usuar else v-nom-usuar 	
                 ttRetorno.grpusuar          = hist-manifestacao.cod-grp-usuar
-                ttRetorno.concparecer       = (hist-manifestacao.conclusao-parecer)
+                ttRetorno.concparecer       = IF AVAIL(ttParecer) THEN ttParecer.dsc-parecer ELSE ''
                 .
     END.
 

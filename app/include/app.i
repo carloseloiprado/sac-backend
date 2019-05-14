@@ -325,7 +325,18 @@ DEF TEMP-TABLE rowerrors no-undo
  CREATE ttTipo. ASSIGN ttTipo.cod-tipo = 'sugestao' ttTipo.dsc-tipo = cpc-lbl('Sugestão'). 
  CREATE ttTipo. ASSIGN ttTipo.cod-tipo = 'reclamacao' ttTipo.dsc-tipo = cpc-lbl('Reclamação'). 
  CREATE ttTipo. ASSIGN ttTipo.cod-tipo = 'solicitacao' ttTipo.dsc-tipo = cpc-lbl('Solicitação'). 
- CREATE ttTipo. ASSIGN ttTipo.cod-tipo = 'ondeencontrar' ttTipo.dsc-tipo = cpc-lbl('Onde Encontrar').  
+ CREATE ttTipo. ASSIGN ttTipo.cod-tipo = 'ondeencontrar' ttTipo.dsc-tipo = cpc-lbl('Onde Encontrar').
+
+ DEF TEMP-TABLE ttParecer no-undo
+    FIELD cod-parecer    as CHAR
+    FIELD dsc-parecer    as CHAR.
+    
+ CREATE ttParecer. ASSIGN ttParecer.cod-parecer = 'solicitaramostra' ttParecer.dsc-parecer = 'Solicitar Amostra'. 
+ CREATE ttParecer. ASSIGN ttParecer.cod-parecer = 'procede' ttParecer.dsc-parecer = 'Procede'. 
+ CREATE ttParecer. ASSIGN ttParecer.cod-parecer = 'naoprocede' ttParecer.dsc-parecer = cpc-lbl('Não Procede'). 
+ 
+
+
  
   
     
