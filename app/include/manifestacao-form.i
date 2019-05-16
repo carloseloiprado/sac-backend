@@ -592,15 +592,18 @@ PROCEDURE pi-transfere-manifestacao:
     DEFINE VARIABLE c-acao                  AS CHAR NO-UNDO INIT "transferida".
     DEFINE VARIABLE cUsuarioCorrente        AS CHAR NO-UNDO.
     DEFINE VARIABLE cTpItem                 AS CHAR NO-UNDO.
-    
+    DEFINE VARIABLE i-cd-sta-manifestacao	AS INT  NO-UNDO INIT 2.
+     
     ASSIGN cTpItem          = pTpItem
            cUsuarioCorrente = usuarioCorrente.
     
-    IF pTpItem = 'SAC' THEN
-        ASSIGN c-acao = "solucionada".
-    ELSE IF pTpItem <> 'SAI' AND pTpItem <> 'SAE' AND pTpItem <> 'SAL' AND pTpItem <> 'SAP' AND pTpItem <> 'SAC' THEN
+    IF pTpItem <> 'SAI' AND pTpItem <> 'SAE' AND pTpItem <> 'SAL' AND pTpItem <> 'SAP' THEN
         ASSIGN cUsuarioCorrente = pTpItem
-               cTpItem          = ''.
+               cTpItem          = ''.    
+    ELSE
+        ASSIGN i-cd-sta-manifestacao = 1.
+        
+    
     
     MESSAGE 'cTpItem          = ' cTpItem
            ' cUsuarioCorrente = ' cUsuarioCorrente.
@@ -629,11 +632,10 @@ PROCEDURE pi-transfere-manifestacao:
             WHERE manifestacao.id-manifestacao = pIdManifestacao NO-ERROR.
             
     IF AVAIL (manifestacao) THEN
-       ASSIGN manifestacao.cd-status            = IF pTpItem = 'SAC' THEN 4 ELSE manifestacao.cd-status
-              manifestacao.cod-usuar            = ''
+       ASSIGN manifestacao.cod-usuar            = ''
               manifestacao.conclusao-parecer    = pConclusao
               pMsgResponse						= "protocolo: " + manifestacao.nr-protocolo
-              manifestacao.cd-status            = 2.                                                                                                  
+              manifestacao.cd-status            = i-cd-sta-manifestacao.                                                                                                  
 END PROCEDURE.
 
 PROCEDURE pi-devolve-manifestacao:
