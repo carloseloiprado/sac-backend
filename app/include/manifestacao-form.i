@@ -378,7 +378,7 @@ PROCEDURE pi-tramita-manifestacao:
 
 			ASSIGN anexo-manifestacao.id-anexo-manifestacao		= i-id-anexo-manifestacao
 					anexo-manifestacao.id-manifestacao			= manifestacao.id-manifestacao
-					anexo-manifestacao.path-anexo				= 'tram-' + portal-anexo-manifestacao-form.path-anexo
+					anexo-manifestacao.path-anexo				= 'tram-' + replace(portal-anexo-manifestacao-form.path-anexo,"idx",STRING(TIME))
 					NO-ERROR.
 			
 			IF ERROR-STATUS:ERROR OR ERROR-STATUS:NUM-MESSAGES > 0 THEN DO:
@@ -513,7 +513,7 @@ PROCEDURE pi-finaliza-edicao-manifestacao:
 
 			ASSIGN anexo-manifestacao.id-anexo-manifestacao		= i-id-anexo-manifestacao
 				   anexo-manifestacao.id-manifestacao			= manifestacao.id-manifestacao
-				   anexo-manifestacao.path-anexo				= 'edit-' + portal-anexo-manifestacao-form.path-anexo
+				   anexo-manifestacao.path-anexo				= 'edit-' + replace(portal-anexo-manifestacao-form.path-anexo,"idx",STRING(TIME))
 				   NO-ERROR.
 			
 			IF ERROR-STATUS:ERROR OR ERROR-STATUS:NUM-MESSAGES > 0 THEN DO:
@@ -600,8 +600,8 @@ PROCEDURE pi-transfere-manifestacao:
     IF pTpItem <> 'SAI' AND pTpItem <> 'SAE' AND pTpItem <> 'SAL' AND pTpItem <> 'SAP' THEN
         ASSIGN cUsuarioCorrente = pTpItem
                cTpItem          = ''.    
-    ELSE
-        ASSIGN i-cd-sta-manifestacao = 1.
+    //ELSE
+    ASSIGN i-cd-sta-manifestacao = 1.
         
     
     

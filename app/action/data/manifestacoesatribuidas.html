@@ -47,7 +47,7 @@ DEFINE DATASET dsRetorno      FOR ttRetorno.
 
 FOR EACH manifestacao FIELDS ( origem nr-protocolo ds-tpo-manifestacao cod-grp-usuar cd-status id-manifestacao dt-cadastro hr-cadastro cod-usu-cadastro ) NO-LOCK
         WHERE /*manifestacao.cod-usu-cadastro = usuarioCorrente
-          AND*/ manifestacao.cd-status = 2,
+          AND*/ manifestacao.cd-status = 2 OR  manifestacao.cd-status = 3,
     EACH tar-manifestacao FIELDS( id-tar-manifestacao cod-usuar dt-execucao id-manifestacao cod-grp-usuar ds-status) NO-LOCK
         WHERE tar-manifestacao.id-manifestacao  = manifestacao.id-manifestacao
           AND ( tar-manifestacao.ds-status      = 'ASSUMIDA' OR tar-manifestacao.ds-status = 'TRANSFERIDA' )

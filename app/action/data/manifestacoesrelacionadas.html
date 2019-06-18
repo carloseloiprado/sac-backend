@@ -49,7 +49,7 @@ DEFINE TEMP-TABLE ttRetorno NO-UNDO
 DEFINE DATASET dsRetorno      FOR ttRetorno.
 
 FOR EACH manifestacao FIELDS ( origem nr-protocolo ds-tpo-manifestacao cod-grp-usuar cd-status id-manifestacao dt-cadastro hr-cadastro ) NO-LOCK
-        WHERE ( manifestacao.cd-status = 1 OR  manifestacao.cd-status = 2 ),
+        WHERE ( manifestacao.cd-status = 1 OR  manifestacao.cd-status = 2 OR  manifestacao.cd-status = 3),
     EACH usuar_grp_usuar FIELDS ( cod_usuario cod_grp_usuar ) USE-INDEX srgrpsr_usuario NO-LOCK WHERE usuar_grp_usuar.cod_usuario = usuarioCorrente,
     FIRST tar-manifestacao FIELDS( id-tar-manifestacao  dt-execucao id-manifestacao cod-grp-usuar ds-status) NO-LOCK
         WHERE tar-manifestacao.id-manifestacao  = manifestacao.id-manifestacao
@@ -67,7 +67,7 @@ END.
 IF ( lnkNewManifestacao = "#" ) THEN DO: //Verifica se usuário logado não pertence ao grupo SAC
     
     FOR EACH manifestacao FIELDS ( origem nr-protocolo ds-tpo-manifestacao cod-grp-usuar cd-status id-manifestacao dt-cadastro hr-cadastro cod-usu-cadastro ) NO-LOCK
-        WHERE manifestacao.cd-status = 2,
+        WHERE manifestacao.cd-status = 2 OR  manifestacao.cd-status = 3,
         EACH tar-manifestacao FIELDS( id-tar-manifestacao cod-usuar dt-execucao id-manifestacao cod-grp-usuar ds-status) NO-LOCK
             WHERE tar-manifestacao.id-manifestacao  = manifestacao.id-manifestacao
               AND ( tar-manifestacao.ds-status      = 'ASSUMIDA' OR tar-manifestacao.ds-status = 'TRANSFERIDA' )

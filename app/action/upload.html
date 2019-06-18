@@ -11,8 +11,41 @@ DEFINE VARIABLE decdlngc        AS LONGCHAR NO-UNDO.
 DEFINE VARIABLE mFile           AS MEMPTR NO-UNDO.
 DEFINE VARIABLE cfile           AS CHAR NO-UNDO.
 DEFINE VARIABLE cfile_dest      AS CHAR NO-UNDO.
+DEFINE VARIABLE cfile_name      AS CHAR NO-UNDO.
+DEFINE VARIABLE cext_file       AS CHAR NO-UNDO.
 DEFINE VARIABLE vDestino        AS CHAR NO-UNDO. 
  
+DEFINE VARIABLE loopFlag    AS LOG INIT TRUE NO-UNDO.
+DEFINE VARIABLE ixloopFlag  AS INT NO-UNDO.
+
+MESSAGE 'action...: ' get-value('action').
+MESSAGE 'filename.: ' get-value('filename').
+MESSAGE 'cext_file.: ' get-value('extfile').
+
+if get-value('extfile') = "." then DO:
+
+    ixloopFlag = LENGTH(get-value('filename')).
+
+    DO WHILE loopFlag:        
+    
+        IF ( SUBSTR(get-value('filename'),ixloopFlag,1) = '.') THEN DO:
+            ASSIGN cext_file = '.' + cext_file
+                   loopFlag = FALSE.
+        END.
+        ELSE
+            ASSIGN cext_file = SUBSTR(get-value('filename'),ixloopFlag,1) + cext_file.
+        
+        ixloopFlag = ixloopFlag - 1.
+
+        IF ixloopFlag = 0 THEN
+            loopFlag = FALSE.
+    END.
+END.
+else
+    ASSIGN cext_file = get-value('extfile').
+
+ASSIGN cfile_name = SUBSTR(get-value('filename'),1,6) + cext_file.
+
 /*Destino do aqruivo a ser upado*/
 vDestino = get-config("fileUploadDirectory":U) + '\' + get-cookie("SessionContextToken").
 
@@ -40,23 +73,24 @@ IF mFile <> ? THEN DO:
     IF FILE-INFO:FULL-PATHNAME <> ? THEN DO:
 
         ASSIGN  cfile      = get-value('file')
-                cfile_dest = vDestino + '\' + entry(num-entries(cfile),cfile,'\').
+                cfile_dest = vDestino + '\' + cfile_name.
         MESSAGE 'Uploaded as: ' + cfile_dest.
         COPY-LOB FROM mFile TO FILE cfile_dest NO-CONVERT.
         //limpa do spool
-        OS-DELETE VALUE(get-config("fileUploadDirectory":U) + '\' +  entry(num-entries(cfile),cfile,'\')).
-        //MESSAGE 'DELETOU.: ' get-config("fileUploadDirectory":U) + '\' +  entry(num-entries(cfile),cfile,'\').
+        OS-DELETE VALUE(get-config("fileUploadDirectory":U) + '\' +  cfile_name).
+        OS-DELETE VALUE(get-config("fileUploadDirectory":U) + '\' +  get-value('filename')).
+        //MESSAGE 'DELETOU.: ' get-config("fileUploadDirectory":U) + '\' +  cfile_name.
 
         FIND FIRST portal-anexo-manifestacao-form EXCLUSIVE-LOCK
             WHERE portal-anexo-manifestacao-form.cod-usu-corrente   = usuarioCorrente
               AND portal-anexo-manifestacao-form.token              = get-cookie("SessionContextToken")
-              AND portal-anexo-manifestacao-form.path-anexo         = entry(num-entries(cfile),cfile,'\') NO-ERROR.
+              AND portal-anexo-manifestacao-form.path-anexo         = cfile_name NO-ERROR.
         IF NOT AVAIL (portal-anexo-manifestacao-form) THEN
             CREATE portal-anexo-manifestacao-form.
         
         ASSIGN portal-anexo-manifestacao-form.cod-usu-corrente  = usuarioCorrente
                portal-anexo-manifestacao-form.token             = get-cookie("SessionContextToken")
-               portal-anexo-manifestacao-form.path-anexo        = entry(num-entries(cfile),cfile,'\').
+               portal-anexo-manifestacao-form.path-anexo        = cfile_name.
 
     END.
 END.
@@ -75,16 +109,20 @@ procedure pi-limpa-diretorio:
     INPUT THROUGH VALUE(osComando). /*** dir /b - lista os arquivo no modo verboso (depurado) ****/
     
     REPEAT : IMPORT UNFORMATTED vArquivo.
-        ASSIGN arqOrigem = vDiretorio + "\" + vArquivo.        
-        MESSAGE "deletou.: " arqOrigem .         
-        OS-DELETE VALUE(arqOrigem).
 
-        FIND FIRST portal-anexo-manifestacao-form EXCLUSIVE-LOCK
-            WHERE portal-anexo-manifestacao-form.cod-usu-corrente   = usuarioCorrente
-              AND portal-anexo-manifestacao-form.token              = get-cookie("SessionContextToken") 
-              AND portal-anexo-manifestacao-form.path-anexo         = vArquivo NO-ERROR.
-        IF AVAIL (portal-anexo-manifestacao-form) THEN
-            DELETE portal-anexo-manifestacao-form.
+        MESSAGE 'vArquivo.:' vArquivo.
+        if ( vArquivo = cfile_name or cfile_name = 'tudo' ) THEN DO:
+            ASSIGN arqOrigem = vDiretorio + "\" + vArquivo.        
+            MESSAGE "deletou.: " arqOrigem .         
+            OS-DELETE VALUE(arqOrigem).
+
+            FIND FIRST portal-anexo-manifestacao-form EXCLUSIVE-LOCK
+                WHERE portal-anexo-manifestacao-form.cod-usu-corrente   = usuarioCorrente
+                AND portal-anexo-manifestacao-form.token              = get-cookie("SessionContextToken") 
+                AND portal-anexo-manifestacao-form.path-anexo         = vArquivo NO-ERROR.
+            IF AVAIL (portal-anexo-manifestacao-form) THEN
+                DELETE portal-anexo-manifestacao-form.
+        END.
     END.
 
 end procedure.        
