@@ -65,8 +65,7 @@ END.
 
 FOR EACH manifestacao FIELDS ( origem nr-protocolo ds-tpo-manifestacao cod-grp-usuar cd-status id-manifestacao dt-cadastro hr-cadastro ) NO-LOCK
         WHERE manifestacao.cd-status < 4 
-          AND manifestacao.ds-tpo-manifestacao <> 'reclamacao' 
-          AND manifestacao.ds-tpo-manifestacao <> 'solicitacao' ,
+          AND manifestacao.ds-tpo-manifestacao <> 'reclamacao' ,
     EACH usuar_grp_usuar FIELDS ( cod_usuario cod_grp_usuar ) use-index srgrpsr_id NO-LOCK 
         WHERE usuar_grp_usuar.cod_usuario   = usuarioCorrente
           AND usuar_grp_usuar.cod_grp_usuar = 'SAC',
