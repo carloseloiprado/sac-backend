@@ -87,7 +87,8 @@ ELSE IF ( lnkNewManifestacao <> "#" ) THEN DO: //Verifica se usuário logado pert
     FOR EACH hist-manifestacao FIELDS ( cod-usuar cod-grp-usuar cod-usuar-corrente id-manifestacao ) NO-LOCK 
             WHERE hist-manifestacao.cod-usuar-corrente = usuarioCorrente OR hist-manifestacao.cod-usuar = usuarioCorrente ,
         FIRST manifestacao FIELDS ( origem nr-protocolo ds-tpo-manifestacao cod-grp-usuar cd-status id-manifestacao dt-cadastro hr-cadastro ) NO-LOCK
-            WHERE hist-manifestacao.id-manifestacao = manifestacao.id-manifestacao,
+            WHERE hist-manifestacao.id-manifestacao = manifestacao.id-manifestacao
+            AND manifestacao.cd-status < 5,
         EACH status-manifestacao FIELDS ( id-status ds-status) NO-LOCK 
             WHERE status-manifestacao.id-status = manifestacao.cd-status
         :				

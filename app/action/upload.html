@@ -22,7 +22,7 @@ MESSAGE 'action...: ' get-value('action').
 MESSAGE 'filename.: ' get-value('filename').
 MESSAGE 'cext_file.: ' get-value('extfile').
 
-if get-value('extfile') = "." then DO:
+//if get-value('extfile') = "." then DO:
 
     ixloopFlag = LENGTH(get-value('filename')).
 
@@ -40,9 +40,9 @@ if get-value('extfile') = "." then DO:
         IF ixloopFlag = 0 THEN
             loopFlag = FALSE.
     END.
-END.
+/*END.
 else
-    ASSIGN cext_file = get-value('extfile').
+    ASSIGN cext_file = get-value('extfile').*/
 
 ASSIGN cfile_name = SUBSTR(get-value('filename'),1,6) + cext_file.
 
