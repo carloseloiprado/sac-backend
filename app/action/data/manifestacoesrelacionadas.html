@@ -70,7 +70,7 @@ IF ( lnkNewManifestacao = "#" ) THEN DO: //Verifica se usuário logado não perten
         WHERE manifestacao.cd-status = 2 OR  manifestacao.cd-status = 3,
         EACH tar-manifestacao FIELDS( id-tar-manifestacao cod-usuar dt-execucao id-manifestacao cod-grp-usuar ds-status) NO-LOCK
             WHERE tar-manifestacao.id-manifestacao  = manifestacao.id-manifestacao
-              AND ( tar-manifestacao.ds-status      = 'ASSUMIDA' OR tar-manifestacao.ds-status = 'TRANSFERIDA' )
+              AND ( tar-manifestacao.ds-status      = 'ASSUMIDA' OR tar-manifestacao.ds-status = 'TRANSFERIDA' OR tar-manifestacao.ds-status = 'DEVOLVIDA' )
               AND tar-manifestacao.cod-usuar        = usuarioCorrente
               AND tar-manifestacao.dt-execucao      = ?,
         EACH status-manifestacao FIELDS ( id-status ds-status) NO-LOCK 

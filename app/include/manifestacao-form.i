@@ -598,10 +598,11 @@ PROCEDURE pi-transfere-manifestacao:
            cUsuarioCorrente = usuarioCorrente.
     
     IF pTpItem <> 'SAI' AND pTpItem <> 'SAE' AND pTpItem <> 'SAL' AND pTpItem <> 'SAP' THEN
-        ASSIGN cUsuarioCorrente = pTpItem
-               cTpItem          = ''.    
-    //ELSE
-    ASSIGN i-cd-sta-manifestacao = 1.
+        ASSIGN cUsuarioCorrente         = pTpItem
+               cTpItem                  = ''
+               i-cd-sta-manifestacao    = 2.    
+    ELSE
+        ASSIGN i-cd-sta-manifestacao = 1.
         
     
     
