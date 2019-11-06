@@ -460,6 +460,7 @@ PROCEDURE pi-tramita-manifestacao:
             
     IF AVAIL (manifestacao) THEN
        ASSIGN manifestacao.cd-status            = IF pTpItem = 'SAC' THEN 4 ELSE manifestacao.cd-status
+              manifestacao.cd-status            = IF pTpItem <> 'SAC' AND pConclusao = 'Procede' THEN 2 ELSE manifestacao.cd-status
               manifestacao.cod-usuar            = ''
               manifestacao.conclusao-parecer    = pConclusao
               pMsgResponse						= "protocolo: " + manifestacao.nr-protocolo.
