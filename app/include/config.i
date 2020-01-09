@@ -28,7 +28,11 @@ DEFINE TEMP-TABLE app_config NO-UNDO
    FIELD timeout_sessao				AS CHARACTER FORMAT "x(2)"
    FIELD texto_resp_imediata		AS CHARACTER FORMAT "x(500)"
    FIELD email_rnc                  AS CHARACTER FORMAT "x(50)"
-   FIELD user_rnc                  AS CHARACTER FORMAT "x(20)".
+   FIELD user_rnc                   AS CHARACTER FORMAT "x(20)"
+   FIELD environment                AS CHARACTER FORMAT "x(5)"
+   FIELD user_environment           AS CHARACTER FORMAT "x(20)"
+   FIELD email_user_environment     AS CHARACTER FORMAT "x(50)"
+   .
  
  
 /** Variaveis para leitura do XML */
@@ -41,13 +45,18 @@ DEFINE VARIABLE v-schemapath         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE v-override-def-map   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE v-field-type-map     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE v-verify-schema-mode AS CHARACTER NO-UNDO.
-DEFINE VARIABLE v-test_xml           AS CHARACTER NO-UNDO.
- 
- 
+DEFINE VARIABLE v-test_xml           AS CHARACTER NO-UNDO. 
+DEFINE VARIABLE v-slash-environment  AS CHARACTER NO-UNDO.
+
+
+/** Defini��o de paramatro definir SO (libux ou Windows) */
+ IF ( SERVER_SOFTWARE matches "*linux*" ) THEN ASSIGN v-slash-environment = "/" ELSE ASSIGN v-slash-environment = "\".
+
+
 /** Defini��o de paramatros para leitura do XML */
 ASSIGN v-sourcetype         = "FILE"
        v-read-xml           = "config.xml"
-       v-read-xml-path      = fi_retorna_diretorio_fisico_propath("*app", "\config\") + v-read-xml
+       v-read-xml-path      = fi_retorna_diretorio_fisico_propath("*app", v-slash-environment + "config" + v-slash-environment ) + v-read-xml
        v-readmode           = "EMPTY"
        v-schemapath         = ?
        v-override-def-map   = ?

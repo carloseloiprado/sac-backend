@@ -47,7 +47,7 @@ else
 ASSIGN cfile_name = SUBSTR(get-value('filename'),1,6) + cext_file.
 
 /*Destino do aqruivo a ser upado*/
-vDestino = get-config("fileUploadDirectory":U) + '\' + get-cookie("SessionContextToken").
+vDestino = get-config("fileUploadDirectory":U) + v-slash-environment + get-cookie("SessionContextToken").
 
 /* Verifica se a pasta existe */
 ASSIGN FILE-INFO:FILE-NAME = vDestino.
@@ -60,7 +60,7 @@ end.
 ASSIGN mFile = get-binary-data("file").
 IF mFile <> ? THEN DO:
 
-    vDestino = get-config("fileUploadDirectory":U) + '\' + get-cookie("SessionContextToken").
+    vDestino = get-config("fileUploadDirectory":U) + v-slash-environment + get-cookie("SessionContextToken").
     
     /* Verifica se a pasta existe */
     ASSIGN FILE-INFO:FILE-NAME = vDestino.
@@ -73,13 +73,13 @@ IF mFile <> ? THEN DO:
     IF FILE-INFO:FULL-PATHNAME <> ? THEN DO:
 
         ASSIGN  cfile      = get-value('file')
-                cfile_dest = vDestino + '\' + cfile_name.
+                cfile_dest = vDestino + v-slash-environment + cfile_name.
         MESSAGE 'Uploaded as: ' + cfile_dest.
         COPY-LOB FROM mFile TO FILE cfile_dest NO-CONVERT.
         //limpa do spool
-        OS-DELETE VALUE(get-config("fileUploadDirectory":U) + '\' +  cfile_name).
-        OS-DELETE VALUE(get-config("fileUploadDirectory":U) + '\' +  get-value('filename')).
-        //MESSAGE 'DELETOU.: ' get-config("fileUploadDirectory":U) + '\' +  cfile_name.
+        OS-DELETE VALUE(get-config("fileUploadDirectory":U) + v-slash-environment +  cfile_name).
+        OS-DELETE VALUE(get-config("fileUploadDirectory":U) + v-slash-environment +  get-value('filename')).
+        //MESSAGE 'DELETOU.: ' get-config("fileUploadDirectory":U) + v-slash-environment +  cfile_name.
 
         FIND FIRST portal-anexo-manifestacao-form EXCLUSIVE-LOCK
             WHERE portal-anexo-manifestacao-form.cod-usu-corrente   = usuarioCorrente
@@ -105,14 +105,14 @@ procedure pi-limpa-diretorio:
     DEFINE VARIABLE osComando  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE arqOrigem  AS CHARACTER FORMAT "x(60)" NO-UNDO.
     
-    ASSIGN osComando = "dir /b " + vDiretorio + "\*.*".
+    ASSIGN osComando = "dir /b " + vDiretorio + v-slash-environment + "*.*".
     INPUT THROUGH VALUE(osComando). /*** dir /b - lista os arquivo no modo verboso (depurado) ****/
     
     REPEAT : IMPORT UNFORMATTED vArquivo.
 
         MESSAGE 'vArquivo.:' vArquivo.
         if ( vArquivo = cfile_name or cfile_name = 'tudo' ) THEN DO:
-            ASSIGN arqOrigem = vDiretorio + "\" + vArquivo.        
+            ASSIGN arqOrigem = vDiretorio + v-slash-environment + vArquivo.        
             MESSAGE "deletou.: " arqOrigem .         
             OS-DELETE VALUE(arqOrigem).
 
@@ -127,3 +127,4 @@ procedure pi-limpa-diretorio:
 
 end procedure.        
 %>
+

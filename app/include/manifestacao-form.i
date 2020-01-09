@@ -240,7 +240,7 @@ PROCEDURE pi-finaliza-manifestacao:
 			END.
 
 			ASSIGN vDestino = app_config.caminho_img_anexo + manifestacao.id-manifestacao
-				   vOrigem	= get-config("fileUploadDirectory":U) + '\' + portal-anexo-manifestacao-form.token.
+				   vOrigem	= get-config("fileUploadDirectory":U) + v-slash-environment + portal-anexo-manifestacao-form.token.
 
 			MESSAGE 'vDestino.: ' vDestino skip
 					'vOrigem.: ' vOrigem.
@@ -253,14 +253,14 @@ PROCEDURE pi-finaliza-manifestacao:
 
 			ASSIGN FILE-INFO:FILE-NAME = vDestino.
     		IF FILE-INFO:FULL-PATHNAME <> ? THEN DO:
-				MESSAGE  'DELETOU.: ' vOrigem + "\" + portal-anexo-manifestacao-form.path-anexo.
+				MESSAGE  'DELETOU.: ' vOrigem + v-slash-environment + portal-anexo-manifestacao-form.path-anexo.
 					
 				/* verifica se arquivo foi gerado */	 
-				FILE-INFO:FILE-NAME = vDestino + "\" + anexo-manifestacao.path-anexo.
+				FILE-INFO:FILE-NAME = vDestino + v-slash-environment + anexo-manifestacao.path-anexo.
 				
 				IF FILE-INFO:PATHNAME = ? THEN DO:
 					/*move do temporário para definitivo*/
-					OS-COPY VALUE(vOrigem + "\" + portal-anexo-manifestacao-form.path-anexo) VALUE(vDestino + "\" + anexo-manifestacao.path-anexo).
+					OS-COPY VALUE(vOrigem + v-slash-environment + portal-anexo-manifestacao-form.path-anexo) VALUE(vDestino + v-slash-environment + anexo-manifestacao.path-anexo).
 					
 				END.
 			END.
@@ -390,7 +390,7 @@ PROCEDURE pi-tramita-manifestacao:
 			END.
 
 			ASSIGN vDestino = app_config.caminho_img_anexo + manifestacao.id-manifestacao
-				   vOrigem	= get-config("fileUploadDirectory":U) + '\' + portal-anexo-manifestacao-form.token.
+				   vOrigem	= get-config("fileUploadDirectory":U) + v-slash-environment + portal-anexo-manifestacao-form.token.
 
 			MESSAGE 'vDestino.: ' vDestino skip
 					'vOrigem.: ' vOrigem.
@@ -403,14 +403,14 @@ PROCEDURE pi-tramita-manifestacao:
 
 			ASSIGN FILE-INFO:FILE-NAME = vDestino.
     		IF FILE-INFO:FULL-PATHNAME <> ? THEN DO:
-				MESSAGE  'DELETOU.: ' vOrigem + "\" + portal-anexo-manifestacao-form.path-anexo.
+				MESSAGE  'DELETOU.: ' vOrigem + v-slash-environment + portal-anexo-manifestacao-form.path-anexo.
 					
 				/* verifica se arquivo foi gerado */	 
-				FILE-INFO:FILE-NAME = vDestino + "\" + anexo-manifestacao.path-anexo.
+				FILE-INFO:FILE-NAME = vDestino + v-slash-environment + anexo-manifestacao.path-anexo.
 				
 				IF FILE-INFO:PATHNAME = ? THEN DO:
 					/*move do temporário para definitivo*/
-					OS-COPY VALUE(vOrigem + "\" + portal-anexo-manifestacao-form.path-anexo) VALUE(vDestino + "\" + anexo-manifestacao.path-anexo).
+					OS-COPY VALUE(vOrigem + v-slash-environment + portal-anexo-manifestacao-form.path-anexo) VALUE(vDestino + v-slash-environment + anexo-manifestacao.path-anexo).
 					
 				END.
 			END.
@@ -526,7 +526,7 @@ PROCEDURE pi-finaliza-edicao-manifestacao:
 			END.
 
 			ASSIGN vDestino = app_config.caminho_img_anexo + manifestacao.id-manifestacao
-				   vOrigem	= get-config("fileUploadDirectory":U) + '\' + portal-anexo-manifestacao-form.token.
+				   vOrigem	= get-config("fileUploadDirectory":U) + v-slash-environment + portal-anexo-manifestacao-form.token.
 
 			MESSAGE 'vDestino.: ' vDestino skip
 					'vOrigem.: ' vOrigem.
@@ -539,14 +539,14 @@ PROCEDURE pi-finaliza-edicao-manifestacao:
 
 			ASSIGN FILE-INFO:FILE-NAME = vDestino.
     		IF FILE-INFO:FULL-PATHNAME <> ? THEN DO:
-				MESSAGE  'DELETOU.: ' vOrigem + "\" + portal-anexo-manifestacao-form.path-anexo.
+				MESSAGE  'DELETOU.: ' vOrigem + v-slash-environment + portal-anexo-manifestacao-form.path-anexo.
 					
 				/* verifica se arquivo foi gerado */	 
-				FILE-INFO:FILE-NAME = vDestino + "\" + anexo-manifestacao.path-anexo.
+				FILE-INFO:FILE-NAME = vDestino + v-slash-environment + anexo-manifestacao.path-anexo.
 				
 				IF FILE-INFO:PATHNAME = ? THEN DO:
 					/*move do temporário para definitivo*/
-					OS-COPY VALUE(vOrigem + "\" + portal-anexo-manifestacao-form.path-anexo) VALUE(vDestino + "\" + anexo-manifestacao.path-anexo).
+					OS-COPY VALUE(vOrigem + v-slash-environment + portal-anexo-manifestacao-form.path-anexo) VALUE(vDestino + v-slash-environment + anexo-manifestacao.path-anexo).
 					
 				END.
 			END.
@@ -719,11 +719,11 @@ procedure pi-limpa-diretorio:
     DEFINE VARIABLE osComando  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE arqOrigem  AS CHARACTER FORMAT "x(60)" NO-UNDO.
     
-    ASSIGN osComando = "dir /b " + vDiretorio + "\*.*".
+    ASSIGN osComando = "dir /b " + vDiretorio + v-slash-environment + "*.*".
     INPUT THROUGH VALUE(osComando). /*** dir /b - lista os arquivo no modo verboso (depurado) ****/
     
     REPEAT : IMPORT UNFORMATTED vArquivo.
-        ASSIGN arqOrigem = vDiretorio + "\" + vArquivo.      
+        ASSIGN arqOrigem = vDiretorio + v-slash-environment + vArquivo.      
         OS-DELETE VALUE(arqOrigem).
 
         FIND FIRST portal-anexo-manifestacao-form EXCLUSIVE-LOCK

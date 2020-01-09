@@ -301,6 +301,9 @@ PROCEDURE pi-envia-email:
                    .
         END.
         
+        IF app_config.environment = 'dev' THEN    //caso seja ambiente de desenvolviemtno não enviar emails para usuários
+            ASSIGN p-destinatarios = app_config.email_user_environment.        
+            
         IF p-conclusao <> 'Password' THEN
             ASSIGN lc-bodyemail = fi-get-template-email(p-mensagem).
         
